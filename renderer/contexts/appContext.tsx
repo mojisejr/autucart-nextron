@@ -1,22 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ISlot } from "../interfaces/slot";
 import { appProviderProps } from "../interfaces/appProviderProps";
-import { ipcRenderer } from "electron";
 
 //@Dev: Define Context Type
 type appContextType = {
-  slots: ISlot[];
-  getSlots: () => ISlot[];
-  getSlot: (slotNo: number) => ISlot;
-  setSlot: (slotNo: number, data: Partial<ISlot>) => void;
+  user?: {
+    stuffId: string;
+    role: string;
+  };
+  setUser?: (user: { stuffId: string; role: string }) => void;
 };
 
 //@Dev define context default values
 const appContextDefaultValue: appContextType = {
-  slots: [],
-  getSlots: () => [],
-  getSlot: () => undefined,
-  setSlot: () => {},
+  user: null,
 };
 
 //@Dev create context with context type
@@ -25,29 +22,20 @@ const AppContext = createContext<appContextType>(appContextDefaultValue);
 //@Dev create provider
 
 export function AppProvider({ children }: appProviderProps) {
-  const [slots, setSlotData] = useState<ISlot[]>([]);
-
+  const [user, setActiveUser] = useState<{ stuffId: string; role: string }>();
   useEffect(() => {
-    ipcRenderer.on("slots", (event, args) => {
-      setSlotData(args);
-    });
-  }, []);
+    if (user !== null || user !== undefined) {
+      console.log("login: ", user);
+    }
+  }, [user]);
 
-  function getSlot(slotNo: number): ISlot {
-    return slots.find((m) => m.slotNo == slotNo);
-  }
-
-  function getSlots(): ISlot[] {
-    return slots;
-  }
-
-  function setSlot(slotNo: number, slotData: Partial<ISlot>) {}
+  const setUser = (user: { stuffId: string; role: string }) => {
+    setActiveUser(user);
+  };
 
   const value = {
-    slots,
-    getSlots,
-    getSlot,
-    setSlot,
+    user,
+    setUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

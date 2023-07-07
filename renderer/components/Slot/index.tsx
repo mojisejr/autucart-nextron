@@ -2,16 +2,15 @@ import { useState } from "react";
 import LockedSlot from "./locked";
 import EmptySlot from "./empty";
 import Modal from "../Modals";
-import ClearSlot from "../Dialogs/clearSlot";
 import InputSlot from "../Dialogs/inputSlot";
 
 interface SlotProps {
   slotData: {
-    slotNo: number;
+    id?: string;
     locked: boolean;
     hn?: string;
-    date?: string;
-    time?: string;
+    timestamp?: Date;
+    registered: boolean;
   };
 }
 
@@ -19,33 +18,28 @@ const Slot = ({ slotData }: SlotProps) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   function handleSlot() {
-    if (openModal) {
-      setOpenModal(false);
-    } else {
-      setOpenModal(true);
-    }
+    if (slotData.locked && !slotData.registered)
+      if (openModal) {
+        setOpenModal(false);
+      } else {
+        setOpenModal(true);
+      }
   }
 
   return (
     <button onClick={handleSlot}>
-      {slotData.locked ? (
+      {slotData.locked && slotData.registered ? (
         <LockedSlot
-          slotNo={slotData.slotNo}
+          slotNo={slotData.id}
           hn={slotData.hn}
-          date={slotData.date}
-          time={slotData.time}
+          date={new Date(slotData.timestamp).toLocaleDateString()}
+          time={new Date(slotData.timestamp).toLocaleTimeString()}
         />
       ) : (
-        <EmptySlot slotNo={slotData.slotNo} />
+        <EmptySlot slotNo={slotData.id} />
       )}
       <Modal isOpen={openModal} onClose={handleSlot}>
-        <>
-          {slotData.locked ? (
-            <ClearSlot slotNo={slotData.slotNo} onClose={handleSlot} />
-          ) : (
-            <InputSlot slotNo={slotData.slotNo} onClose={handleSlot} />
-          )}
-        </>
+        <InputSlot slotNo={slotData.id} onClose={handleSlot} />
       </Modal>
     </button>
   );

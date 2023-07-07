@@ -4,4 +4,5 @@ export interface ISlot {
   date?: string;
   time?: string;
   locked: boolean;
+  registered: boolean;
 }

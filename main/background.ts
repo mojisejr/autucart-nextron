@@ -9,6 +9,7 @@ import {
   unlockSlot,
   isLocked,
 } from "./db";
+import { getUser } from "./db/auth";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -38,28 +39,32 @@ if (isProd) {
   //@DEV: IPC MAIN
   /////////////////
 
-  ipcMain.handle("getSlotsState", (event) => {
-    console.log("getSlotsState");
-    return getSlotsState();
+  ipcMain.handle("getSlotsState", async (event) => {
+    return await getSlotsState();
   });
 
-  ipcMain.handle("lockSlot", (event, slotNo: number, hn: string) => {
-    console.log("lockSlot");
-    lockSlot(slotNo, hn);
-    getSlotsState();
-    mainWindow.webContents.send("locked", slotNo);
+  ipcMain.handle(
+    "lockSlot",
+    async (event, slotNo: number, hn: string, registered: boolean) => {
+      await lockSlot(slotNo, hn, registered);
+      await getSlotsState();
+      mainWindow.webContents.send("locked", slotNo);
+    }
+  );
+
+  ipcMain.handle("unlockSlot", async (event, hn: string) => {
+    await unlockSlot(hn);
+    await getSlotsState();
+    mainWindow.webContents.send("unlocked", hn);
   });
 
-  ipcMain.handle("unlockSlot", (event, slotNo: number) => {
-    console.log("unlockSlot");
-    unlockSlot(slotNo);
-    getSlotsState();
-    mainWindow.webContents.send("unlocked", slotNo);
+  ipcMain.handle("isLocked", async (event, slotNo: number) => {
+    return await isLocked(slotNo);
   });
 
-  ipcMain.handle("isLocked", (event, slotNo: number) => {
-    console.log("isLocked");
-    return isLocked(slotNo);
+  ipcMain.handle("Login", async (event, stuffId: string) => {
+    const user = await getUser(stuffId);
+    return user;
   });
 })();
 

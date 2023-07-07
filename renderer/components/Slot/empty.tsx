@@ -1,6 +1,6 @@
-import { FaUnlock } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
 interface EmptySlotProps {
-  slotNo: number;
+  slotNo: string;
 }
 export const EmptySlot = ({ slotNo }: EmptySlotProps) => {
   return (
@@ -8,7 +8,7 @@ export const EmptySlot = ({ slotNo }: EmptySlotProps) => {
       <div className="flex justify-between">
         <div className="font-bold"></div>
         <div>
-          <FaUnlock size={25} />
+          <FaLock className="fill-[#F9324A]" size={25} />
         </div>
       </div>
       <div className="flex flex-col justify-center items-center pt-3">

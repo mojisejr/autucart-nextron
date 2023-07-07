@@ -1,26 +1,49 @@
+import { useForm, SubmitHandler } from "react-hook-form";
+import { MdQrCodeScanner } from "react-icons/md";
 import { ipcRenderer } from "electron";
 
+type Inputs = {
+  hn: string;
+};
+
 interface ClearSlotProps {
-  slotNo: number;
   onClose: () => void;
 }
 
-const ClearSlot = ({ slotNo, onClose }: ClearSlotProps) => {
-  function handleClearSlot() {
-    ipcRenderer.invoke("unlockSlot", slotNo);
+const ClearSlot = ({ onClose }: ClearSlotProps) => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    ipcRenderer.invoke("unlockSlot", data.hn, true);
     onClose();
-  }
+  };
 
   return (
-    <div className="flex justify-center items-center gap-2">
-      <div className="text-xl text-[#ff2343]">clearing slot {slotNo}</div>
-      <button
-        className="p-3 bg-[#ff2343] text-white font-bold rounded-md"
-        onClick={handleClearSlot}
+    <>
+      <div className="font-bold p-3 rounded-md shadow-md">Dispensing</div>
+      <form
+        className="flex gap-2 flex-col p-3 "
+        onSubmit={handleSubmit(onSubmit)}
       >
-        Clear
-      </button>
-    </div>
+        <input
+          className="p-2 bg-gray-100 rounded-md text-[#000]"
+          placeholder="patient Id"
+          {...register("hn", { required: true })}
+        ></input>
+        <button
+          className="font-bold p-2 bg-[#eee] hover:bg-[#F9324A] hover:text-white rounded-md"
+          type="submit"
+        >
+          Despensing
+          {/* <MdQrCodeScanner size={30} /> */}
+        </button>
+      </form>
+    </>
   );
 };
 

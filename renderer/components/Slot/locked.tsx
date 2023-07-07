@@ -1,6 +1,6 @@
 import { FaLock } from "react-icons/fa";
 interface LockedSlotProps {
-  slotNo: number;
+  slotNo: string;
   hn: string;
   date: string;
   time: string;
@@ -8,11 +8,11 @@ interface LockedSlotProps {
 
 export const LockedSlot = ({ slotNo, hn, date, time }: LockedSlotProps) => {
   return (
-    <div className="relative min-w-[150px] min-h-[137px] bg-[#F6F6F6] shadow-xl rounded-xl p-3">
+    <div className="relative min-w-[150px] min-h-[137px] bg-[#F6F6F6] shadow-xl rounded-xl p-3 cursor-default">
       <div className="flex justify-between">
         <div className="font-bold">HN</div>
         <div>
-          <FaLock className="fill-[#F9324A]" size={25} />
+          <FaLock className="fill-[#00ff55]" size={25} />
         </div>
       </div>
       <div className="flex flex-col pt-3 justify-start items-start">

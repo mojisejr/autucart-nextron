@@ -7,9 +7,26 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ipcRenderer } from "electron";
 import { ISlot } from "../interfaces/slot";
+import Modal from "../components/Modals";
+import Auth from "../components/Dialogs/auth";
+import { useApp } from "../contexts/appContext";
+import ClearSlot from "../components/Dialogs/clearSlot";
 
 function Home() {
   const [slots, setSlotsData] = useState<ISlot[]>([]);
+  const [openAuthModal] = useState<boolean>(true);
+  const [openDispenseModal, setOpenDispenseModal] = useState<boolean>(false);
+  const [disableDispensing, setDisableDispensing] = useState<boolean>(true);
+  const { user } = useApp();
+
+  useEffect(() => {
+    const found = slots.filter((s) => s.registered == true);
+    if (found.length > 0) {
+      setDisableDispensing(false);
+    } else {
+      setDisableDispensing(true);
+    }
+  }, [slots]);
 
   useEffect(() => {
     ipcRenderer.invoke("getSlotsState").then((slots) => {
@@ -27,6 +44,11 @@ function Home() {
       });
     });
   }, []);
+
+  const handleDispense = () => {
+    setOpenDispenseModal(true);
+  };
+
   return (
     <>
       <Head>
@@ -42,7 +64,9 @@ function Home() {
               alt="logo"
             />
             <div className="flex flex-col gap-2 text-[16px]">
-              <div className="font-bold">Main Menu</div>
+              {user != undefined ? (
+                <div className="font-bold">User: {user.stuffId}</div>
+              ) : null}
               <button className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md">
                 <BsGear size={20} />
                 <span>Setting</span>
@@ -60,16 +84,35 @@ function Home() {
         </div>
         <div className="col-span-10 bg-[#F3F3F3] rounded-l-[50px]">
           <div className="w-full h-full p-[2rem] flex flex-col gap-[1.2rem]">
-            <div className="self-start font-bold text-3xl">Drawers</div>
-            <ul className="flex gap-2">
+            <ul className="flex gap-2 flex-wrap">
               {slots.map((s, index) => (
                 <Slot key={index} slotData={s} />
               ))}
             </ul>
+            <button
+              disabled={disableDispensing}
+              onClick={() => handleDispense()}
+              className="p-3 font-bold bg-[#eee] rounded-full shadow-xl hover:bg-[#5495F6] hover:text-[#fff] disabled:text-[#ddd] disabled:bg-[#eee]"
+            >
+              Dispense
+            </button>
           </div>
         </div>
       </div>
       <ToastContainer />
+      {!user ? (
+        <>
+          <Modal isOpen={openAuthModal} onClose={() => {}}>
+            <Auth />
+          </Modal>
+        </>
+      ) : null}
+      <Modal
+        isOpen={openDispenseModal}
+        onClose={() => setOpenDispenseModal(false)}
+      >
+        <ClearSlot onClose={() => setOpenDispenseModal(false)} />
+      </Modal>
     </>
   );
 }

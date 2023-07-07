@@ -1,7 +1,5 @@
 import { SlotState } from "../interfaces/slotState";
-
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "./prisma";
 
 export async function getSlotsState(): Promise<SlotState[]> {
   const slots = await prisma.slot.findMany({ take: 15 });
@@ -18,11 +16,10 @@ export async function getSlotState(
 export async function updateSlotState(
   slotNo: number,
   hn: string,
-  locked: boolean,
-  registered: boolean
+  locked: boolean
 ): Promise<SlotState> {
   const updated = await prisma.slot.update({
-    data: { hn, locked, registered },
+    data: { hn, locked },
     where: { id: slotNo },
   });
 
@@ -48,17 +45,9 @@ export async function isLocked(slotNo: number): Promise<boolean> {
   return state.locked ? true : false;
 }
 
-export async function lockSlot(
-  slotNo: number,
-  hn: string,
-  registered: boolean
-): Promise<void> {
-  await updateSlotState(slotNo, hn, true, registered);
+export async function lockSlot(slotNo: number, hn: string): Promise<void> {
+  await updateSlotState(slotNo, hn, true);
 }
-
 export async function unlockSlot(hn: string): Promise<void> {
-  const slot = await prisma.slot.findFirst({ where: { hn } });
-  if (slot != null || slot != undefined) {
-    await updateSlotState(slot.id, undefined, true, false);
-  }
+  // await updateSlotState(slotNo, undefined, false);
 }

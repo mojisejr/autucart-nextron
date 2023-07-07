@@ -1,7 +1,8 @@
 export interface SlotState {
-  slotNo: number;
+  id: number;
   hn?: string | undefined;
-  date?: string | undefined;
-  time?: string | undefined;
+  timestamp?: Date;
+  userId?: string | undefined;
   locked: boolean;
+  registered: boolean;
 }
