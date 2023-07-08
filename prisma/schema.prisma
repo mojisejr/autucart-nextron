@@ -26,3 +26,14 @@ model User {
   role    String @default("USER")
   Slot    Slot[]
 }
+
+model Setting {
+  id       Int     @id @default(autoincrement())
+  platform String? @default("LINUX")
+  path     String?
+  baudRate Int     @default(19200)
+  dataBits Int     @default(8)
+  stopBits Int     @default(1)
+  parity   String  @default("none")
+  autoOpen Boolean @default(true)
+}

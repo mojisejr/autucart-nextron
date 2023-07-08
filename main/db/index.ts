@@ -59,6 +59,6 @@ export async function lockSlot(
 export async function unlockSlot(hn: string): Promise<void> {
   const slot = await prisma.slot.findFirst({ where: { hn } });
   if (slot != null || slot != undefined) {
-    await updateSlotState(slot.id, undefined, true, false);
+    await updateSlotState(slot.id, null, true, false);
   }
 }
