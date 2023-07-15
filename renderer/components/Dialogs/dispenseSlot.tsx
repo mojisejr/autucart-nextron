@@ -1,6 +1,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { MdQrCodeScanner } from "react-icons/md";
 import { ipcRenderer } from "electron";
+import { IO } from "../../enums/ipc-enums";
 
 type Inputs = {
   hn: string;
@@ -10,7 +11,7 @@ interface ClearSlotProps {
   onClose: () => void;
 }
 
-const ClearSlot = ({ onClose }: ClearSlotProps) => {
+const DispenseSlot = ({ onClose }: ClearSlotProps) => {
   const {
     register,
     handleSubmit,
@@ -19,7 +20,7 @@ const ClearSlot = ({ onClose }: ClearSlotProps) => {
   } = useForm();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    ipcRenderer.invoke("unlockSlot", data.hn, true);
+    ipcRenderer.invoke(IO.Dispense, data.hn);
     onClose();
   };
 
@@ -40,11 +41,10 @@ const ClearSlot = ({ onClose }: ClearSlotProps) => {
           type="submit"
         >
           Despensing
-          {/* <MdQrCodeScanner size={30} /> */}
         </button>
       </form>
     </>
   );
 };
 
-export default ClearSlot;
+export default DispenseSlot;

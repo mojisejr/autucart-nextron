@@ -1,6 +1,6 @@
 import { FaLock } from "react-icons/fa";
 interface EmptySlotProps {
-  slotNo: string;
+  slotNo: number;
 }
 export const EmptySlot = ({ slotNo }: EmptySlotProps) => {
   return (

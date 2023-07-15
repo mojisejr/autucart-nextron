@@ -6,7 +6,7 @@ import InputSlot from "../Dialogs/inputSlot";
 
 interface SlotProps {
   slotData: {
-    id?: string;
+    id?: number;
     locked: boolean;
     hn?: string;
     timestamp?: Date;

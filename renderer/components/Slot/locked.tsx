@@ -1,6 +1,6 @@
 import { FaLock } from "react-icons/fa";
 interface LockedSlotProps {
-  slotNo: string;
+  slotNo: number;
   hn: string;
   date: string;
   time: string;

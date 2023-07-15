@@ -16,6 +16,7 @@ model Slot {
   timestamp  DateTime? @updatedAt
   locked     Boolean   @default(true)
   registered Boolean   @default(false)
+  opening    Boolean   @default(false)
   userId     String?
   user       User?     @relation(fields: [userId], references: [stuffId])
 }

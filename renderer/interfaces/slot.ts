@@ -1,8 +1,7 @@
 export interface ISlot {
-  slotNo: number;
+  id: number;
   hn?: string;
-  date?: string;
-  time?: string;
+  timestamp?: Date;
   locked: boolean;
   registered: boolean;
 }

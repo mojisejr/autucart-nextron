@@ -2,26 +2,43 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Slot from "../components/Slot";
 import Image from "next/image";
+import { ipcRenderer } from "electron";
 import { BsBook, BsGear, BsQuestionCircle } from "react-icons/bs";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ipcRenderer } from "electron";
-import { ISlot } from "../interfaces/slot";
+
 import Modal from "../components/Modals";
 import Auth from "../components/Dialogs/auth";
+import LockWait from "../components/Dialogs/lockWait";
+import DispenseSlot from "../components/Dialogs/dispenseSlot";
+import DispensingWait from "../components/Dialogs/dispensingWait";
+
+import { ISlot } from "../interfaces/slot";
+import { DB, IO } from "../enums/ipc-enums";
 import { useApp } from "../contexts/appContext";
-import ClearSlot from "../components/Dialogs/clearSlot";
 
 function Home() {
   const [slots, setSlotsData] = useState<ISlot[]>([]);
   const [openAuthModal] = useState<boolean>(true);
   const [openDispenseModal, setOpenDispenseModal] = useState<boolean>(false);
   const [disableDispensing, setDisableDispensing] = useState<boolean>(true);
+  const [isLockWait, setIsLockWait] = useState<{
+    slot?: number;
+    hn?: string;
+    wait: boolean;
+  }>({ wait: false });
+
+  const [isDispensingWait, setIsDispensingWait] = useState<{
+    slot?: number;
+    hn?: string;
+    wait: boolean;
+  }>({ wait: false });
+
   const { user } = useApp();
 
   useEffect(() => {
     const found = slots.filter((s) => s.registered == true);
-    if (found.length > 0) {
+    if (slots.length > 0 && found.length > 0) {
       setDisableDispensing(false);
     } else {
       setDisableDispensing(true);
@@ -29,21 +46,52 @@ function Home() {
   }, [slots]);
 
   useEffect(() => {
-    ipcRenderer.invoke("getSlotsState").then((slots) => {
+    ipcRenderer.on(DB.SlotRegistered, (event, id, hn) => {
+      console.log("REGISTERED");
+      ipcRenderer.invoke(IO.Unlock, id, hn, true);
+      setIsLockWait({ slot: id, hn, wait: true });
+    });
+
+    ipcRenderer.on(IO.Opening, (event, id) => {
+      console.log("OPENING");
+      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
+        const found = slots.filter((s) => s.id == id);
+        setSlotsData(slots);
+        setIsLockWait({ slot: found[0].id, hn: found[0].hn, wait: true });
+      });
+    });
+
+    ipcRenderer.on(IO.Closed, (event, id, hn) => {
+      console.log("CLOSED");
+      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
+        setSlotsData(slots);
+        toast.success(`${id} is locked for HN:${hn}`);
+        setIsLockWait({ slot: null, hn: null, wait: false });
+      });
+    });
+
+    ipcRenderer.invoke(DB.GetAllSlots).then((slots) => {
+      console.log("INITIAL");
       setSlotsData(slots);
     });
-    ipcRenderer.on("locked", (event, args) => {
-      ipcRenderer.invoke("getSlotsState").then((slots) => {
+
+    ipcRenderer.on(IO.Unlocked, (event, id, hn) => {
+      console.log("UNLOCKED");
+      ipcRenderer.invoke(DB.GetAllSlots).then((slots) => {
+        toast.success(`${id} is unlocked !`);
+        setIsLockWait({ slot: id, hn, wait: true });
         setSlotsData(slots);
       });
     });
 
-    ipcRenderer.on("unlocked", (event, args) => {
-      ipcRenderer.invoke("getSlotsState").then((slots) => {
+    ipcRenderer.on(IO.Dispensing, (event, id, hn) => {
+      console.log("DISPENSING");
+      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
         setSlotsData(slots);
+        setIsDispensingWait({ slot: id, hn: hn, wait: true });
       });
     });
-  }, []);
+  }, [isLockWait.wait]);
 
   const handleDispense = () => {
     setOpenDispenseModal(true);
@@ -100,18 +148,27 @@ function Home() {
         </div>
       </div>
       <ToastContainer />
-      {!user ? (
+      {/* {!user ? (
         <>
           <Modal isOpen={openAuthModal} onClose={() => {}}>
             <Auth />
           </Modal>
         </>
-      ) : null}
+      ) : null} */}
       <Modal
         isOpen={openDispenseModal}
         onClose={() => setOpenDispenseModal(false)}
       >
-        <ClearSlot onClose={() => setOpenDispenseModal(false)} />
+        <DispenseSlot onClose={() => setOpenDispenseModal(false)} />
+      </Modal>
+      <Modal isOpen={isLockWait.wait} onClose={() => {}}>
+        <LockWait slotNo={isLockWait.slot} hn={isLockWait.hn} />
+      </Modal>
+      <Modal isOpen={isDispensingWait.wait} onClose={() => {}}>
+        <DispensingWait
+          slotNo={isDispensingWait.slot}
+          hn={isDispensingWait.hn}
+        />
       </Modal>
     </>
   );
