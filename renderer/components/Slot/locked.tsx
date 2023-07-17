@@ -1,4 +1,7 @@
+import { ipcRenderer } from "electron";
+import { useEffect, useState } from "react";
 import { FaLock } from "react-icons/fa";
+import { IO } from "../../enums/ipc-enums";
 interface LockedSlotProps {
   slotNo: number;
   hn: string;
@@ -7,8 +10,22 @@ interface LockedSlotProps {
 }
 
 export const LockedSlot = ({ slotNo, hn, date, time }: LockedSlotProps) => {
+  const [bg, setBg] = useState<string>("bg-[#F6F6F6");
+
+  useEffect(() => {
+    ipcRenderer.on(IO.Dispensing, () => {
+      setBg("bg-[#007852");
+    });
+
+    ipcRenderer.on(IO.DispeningFinished, () => {
+      setBg("bg-[#F6F6F6");
+    });
+  }, []);
+
   return (
-    <div className="relative min-w-[150px] min-h-[137px] bg-[#F6F6F6] shadow-xl rounded-xl p-3 cursor-default">
+    <div
+      className={`relative min-w-[150px] min-h-[137px] ${bg} shadow-xl rounded-xl p-3 cursor-default`}
+    >
       <div className="flex justify-between">
         <div className="font-bold">HN</div>
         <div>

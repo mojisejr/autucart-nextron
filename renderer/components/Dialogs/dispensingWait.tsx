@@ -10,18 +10,14 @@ interface DispensingWaitProps {
 
 const DispensingWait = ({ slotNo, hn }: DispensingWaitProps) => {
   useEffect(() => {
-    ipcRenderer.invoke(IO.WaitForLockBack, slotNo, hn);
+    ipcRenderer.invoke(IO.WaitForDispensingLockBack, slotNo, hn);
   }, []);
-
-  function handleClear() {}
-  function handleContinue() {}
 
   return (
     <>
       <div className="">
         <div className="font-bold p-3 rounded-md shadow-md">
-          <button>Clear</button>
-          <button>Continue</button>
+          Dispensing ... lock back to clear or continue.
         </div>
       </div>
     </>

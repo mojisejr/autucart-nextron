@@ -17,4 +17,5 @@ export function onUnlock(port: SerialPort, mainWindow: BrowserWindow) {
       );
     }
   });
+  ipcMain.removeAllListeners(IO.Unlock);
 }

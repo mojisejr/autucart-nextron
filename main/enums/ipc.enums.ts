@@ -1,11 +1,16 @@
 export enum IO {
-  WaitForLockBack = "serial:waitforlockback",
-  Unlock = "serial:unlock",
-  Unlocked = "serial:unlocked",
-  Closed = "serial:closed",
-  Opening = "serial:opening",
-  Dispense = "serial:dispense",
-  Dispensing = "serial:dispensing",
+  WaitForLockBack = "serial-waitforlockback",
+  Unlock = "serial-unlock",
+  Unlocked = "serial-unlocked",
+  Closed = "serial-closed",
+  Opening = "serial-opening",
+  Dispense = "serial-dispense",
+  Dispensing = "serial-dispensing",
+  WaitForDispensingLockBack = "serial-dispensinglockback",
+  DispensingClosed = "serial-dispensingclose",
+  DispensingClear = "serial-clear",
+  DispensingContinue = "serial-continue",
+  DispensingFinished = "serial-finished",
 }
 export enum DB {
   RegisterSlot = "db:registerslot",

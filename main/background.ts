@@ -12,6 +12,10 @@ import { onUnlock } from "./ipc/onUnlock";
 import { onLogin } from "./ipc/onLogin";
 import { GLOBAL, IO } from "./enums/ipc.enums";
 import { onDispense } from "./ipc/onDispense";
+import { onWaitForDispensingLockBack } from "./ipc/onWaitForDispeningLocked";
+import { onDispeningClear } from "./ipc/onDispensingClear";
+import { onDispensingClosed } from "./ipc/onDispensingClosed";
+import { onDispeningContinue } from "./ipc/onDispensingContinue";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 let port: SerialPort;
@@ -38,7 +42,7 @@ if (isProd) {
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   }
 
   //@DEV: Initialize and open serial port
@@ -52,9 +56,14 @@ if (isProd) {
   onUnlock(port, mainWindow);
   //@Dev: waiting for lockback
   onWaitForLockBack(port, mainWindow);
-
   //@Dev: despensing start
   onDispense(port, mainWindow);
+  //@Dev: waiting for dispensing lockback
+  onWaitForDispensingLockBack(port, mainWindow);
+  //@Dev: clear
+  onDispeningClear(mainWindow);
+  //@Dev: continue
+  onDispeningContinue(mainWindow);
 })();
 
 app.on("window-all-closed", () => {

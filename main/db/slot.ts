@@ -101,6 +101,50 @@ async function completeRegisterSlot(input: CompleteRegisterSlotDTO) {
   }
 }
 
+async function completeDispensingSlot(input: CompleteRegisterSlotDTO) {
+  const registered = await isRegistered(input.id);
+  const opening = await isOpening(input.id);
+
+  if (registered && opening) {
+    await prisma.slot.update({
+      data: {
+        locked: true,
+        registered: false,
+        opening: false,
+      },
+      where: {
+        id: input.id,
+      },
+    });
+    return true;
+  } else {
+    return false;
+  }
+}
+
+async function resetDispensedSlot(id: number) {
+  const registered = await isRegistered(id);
+  const opening = await isOpening(id);
+  const locked = await isLocked(id);
+
+  if (locked && !registered && !opening) {
+    await prisma.slot.update({
+      data: {
+        hn: null,
+        locked: true,
+        registered: false,
+        opening: false,
+      },
+      where: {
+        id,
+      },
+    });
+    return true;
+  } else {
+    return false;
+  }
+}
+
 async function getDispensingDataFromHN(hn: string) {
   const data = await prisma.slot.findFirst({ where: { hn } });
   if (data != null || data != undefined) {
@@ -133,7 +177,9 @@ export {
   registerSlot,
   setOpenSlot,
   completeRegisterSlot,
+  completeDispensingSlot,
   isLocked,
   isRegistered,
   isOpening,
+  resetDispensedSlot,
 };

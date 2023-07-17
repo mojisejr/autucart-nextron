@@ -7,4 +7,5 @@ export function onLogin() {
     const user = await getUser(stuffId);
     return user;
   });
+  ipcMain.removeAllListeners(AUTHENTICATION.Login);
 }

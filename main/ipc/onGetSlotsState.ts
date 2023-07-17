@@ -6,4 +6,6 @@ export function onGetSlotsState() {
   ipcMain.handle(DB.GetAllSlots, async (event) => {
     return await getSlotsState();
   });
+
+  ipcMain.removeAllListeners(DB.GetAllSlots);
 }

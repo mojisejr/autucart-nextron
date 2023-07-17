@@ -16,6 +16,7 @@ import DispensingWait from "../components/Dialogs/dispensingWait";
 import { ISlot } from "../interfaces/slot";
 import { DB, IO } from "../enums/ipc-enums";
 import { useApp } from "../contexts/appContext";
+import ClearOrContinue from "../components/Dialogs/clearOrContinue";
 
 function Home() {
   const [slots, setSlotsData] = useState<ISlot[]>([]);
@@ -33,6 +34,12 @@ function Home() {
     hn?: string;
     wait: boolean;
   }>({ wait: false });
+
+  const [isDispensingClosed, setIsDispensingClosed] = useState<{
+    slot?: number;
+    hn?: string;
+    open: boolean;
+  }>({ open: false });
 
   const { user } = useApp();
 
@@ -65,7 +72,6 @@ function Home() {
       console.log("CLOSED");
       ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
         setSlotsData(slots);
-        toast.success(`${id} is locked for HN:${hn}`);
         setIsLockWait({ slot: null, hn: null, wait: false });
       });
     });
@@ -78,7 +84,6 @@ function Home() {
     ipcRenderer.on(IO.Unlocked, (event, id, hn) => {
       console.log("UNLOCKED");
       ipcRenderer.invoke(DB.GetAllSlots).then((slots) => {
-        toast.success(`${id} is unlocked !`);
         setIsLockWait({ slot: id, hn, wait: true });
         setSlotsData(slots);
       });
@@ -89,6 +94,24 @@ function Home() {
       ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
         setSlotsData(slots);
         setIsDispensingWait({ slot: id, hn: hn, wait: true });
+      });
+    });
+
+    ipcRenderer.on(IO.DispensingClosed, (event, id, hn) => {
+      console.log("DISPENSING CLOSED");
+      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
+        setSlotsData(slots);
+        setIsDispensingWait({ slot: id, hn: hn, wait: false });
+        setIsDispensingClosed({ slot: id, hn: hn, open: true });
+      });
+    });
+
+    ipcRenderer.on(IO.DispensingFinished, (event, id, hn) => {
+      console.log("DISPENSING FINISHED");
+      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
+        setSlotsData(slots);
+        setIsDispensingWait({ slot: id, hn: hn, wait: false });
+        setIsDispensingClosed({ slot: id, hn: hn, open: false });
       });
     });
   }, [isLockWait.wait]);
@@ -147,7 +170,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <ToastContainer />
+      <ToastContainer limit={1} />
       {/* {!user ? (
         <>
           <Modal isOpen={openAuthModal} onClose={() => {}}>
@@ -168,6 +191,13 @@ function Home() {
         <DispensingWait
           slotNo={isDispensingWait.slot}
           hn={isDispensingWait.hn}
+        />
+      </Modal>
+      <Modal isOpen={isDispensingClosed.open} onClose={() => {}}>
+        <ClearOrContinue
+          slotNo={isDispensingClosed.slot}
+          hn={isDispensingClosed.hn}
+          onClose={() => {}}
         />
       </Modal>
     </>
