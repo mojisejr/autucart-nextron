@@ -10,6 +10,7 @@ import { onOpening } from "./onOpening";
 import { onClosed } from "./onClosed";
 import { onDispensingClosed } from "./onDispensingClosed";
 import { onDispensing } from "./onDispensing";
+import { onGetSlotsState } from "./onGetSlotsState";
 
 export async function onLockedBack(
   port: SerialPort,
@@ -19,7 +20,10 @@ export async function onLockedBack(
 ) {
   let event = inputEvent;
   port.on("readable", async () => {
-    console.log("event: ", event);
+    console.log("readable-event-count: ", {
+      count: port.listenerCount("readable"),
+      event,
+    });
     const readed = port.read(8);
     const current = await getCurrentOpeningState();
     if (readed != null || readed != undefined) {
@@ -27,9 +31,10 @@ export async function onLockedBack(
         const state = parseInt(readed[3], 16);
         switch (state) {
           case 0x07: {
+            //@dev: get slot state
             if (current[0].registered && current[0].opening) {
               if (event == IO.WaitForLockBack) {
-                console.log("opening");
+                console.log("WaitForLockBack-closing");
                 onClosed(mainWindow, { id: current[0].id, hn: current[0].hn });
                 const result = await completeRegisterSlot({
                   id: current[0].id,
@@ -37,7 +42,7 @@ export async function onLockedBack(
                 });
                 if (result) {
                   clearInterval(timer);
-                  mainWindow.webContents.send(DB.GetAllSlots);
+                  await onGetSlotsState(mainWindow);
                   port.removeAllListeners("readable");
                   break;
                 } else {
@@ -47,9 +52,8 @@ export async function onLockedBack(
                   );
                   break;
                 }
-              }
-              if (event == IO.WaitForDispensingLockBack) {
-                console.log("dispensing");
+              } else if (event == IO.WaitForDispensingLockBack) {
+                console.log("WaitForDispensingLockBack-closing");
                 onDispensingClosed(mainWindow, {
                   id: current[0].id,
                   hn: current[0].hn,
@@ -61,7 +65,8 @@ export async function onLockedBack(
 
                 if (result) {
                   clearInterval(timer);
-                  mainWindow.webContents.send(DB.GetAllSlots);
+                  await onGetSlotsState(mainWindow);
+                  // mainWindow.webContents.send(DB.GetAllSlots);
                   port.removeAllListeners("readable");
                   break;
                 } else {
@@ -75,26 +80,32 @@ export async function onLockedBack(
             }
           }
           case 0x06: {
+            //@dev: get slot state
+            await onGetSlotsState(mainWindow);
             if (event == IO.WaitForLockBack) {
-              console.log("opening");
+              console.log("opening-slot-1");
               onOpening(mainWindow, { id: current[0].id, hn: current[0].hn });
+              mainWindow.removeAllListeners(IO.Dispensing);
               break;
-            }
-            if (event == IO.WaitForDispensingLockBack) {
-              console.log("despensing");
+            } else if (event == IO.WaitForDispensingLockBack) {
+              console.log("dispensing-slot-1");
               onDispensing(mainWindow, {
                 id: current[0].id,
                 hn: current[0].hn,
               });
+              mainWindow.removeAllListeners(IO.Dispensing);
               break;
             }
           }
           case 0x05: {
+            //@dev: get slot state
+            await onGetSlotsState(mainWindow);
             if (event == IO.WaitForLockBack) {
+              console.log("opening-slot-2");
               onOpening(mainWindow, { id: current[0].id, hn: current[0].hn });
               break;
-            }
-            if (event == IO.WaitForDispensingLockBack) {
+            } else if (event == IO.WaitForDispensingLockBack) {
+              console.log("dispensing-slot-2");
               onDispensing(mainWindow, {
                 id: current[0].id,
                 hn: current[0].hn,
@@ -103,11 +114,14 @@ export async function onLockedBack(
             }
           }
           case 0x03: {
+            //@dev: get slot state
+            await onGetSlotsState(mainWindow);
             if (event == IO.WaitForLockBack) {
+              console.log("opening-slot-3");
               onOpening(mainWindow, { id: current[0].id, hn: current[0].hn });
               break;
-            }
-            if (event == IO.WaitForDispensingLockBack) {
+            } else if (event == IO.WaitForDispensingLockBack) {
+              console.log("dispensing-slot-3");
               onDispensing(mainWindow, {
                 id: current[0].id,
                 hn: current[0].hn,

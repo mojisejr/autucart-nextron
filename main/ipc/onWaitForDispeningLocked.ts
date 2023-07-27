@@ -4,14 +4,12 @@ import { portCheckState } from "../commands";
 import { SerialPort } from "serialport";
 import { onLockedBack } from "./onLockedBack";
 
-export function onWaitForDispensingLockBack(
+export async function onWaitForDispensingLockBack(
   port: SerialPort,
   mainWindow: BrowserWindow
 ) {
-  ipcMain.handle(IO.WaitForDispensingLockBack, (event) => {
+  ipcMain.handle(IO.WaitForDispensingLockBack, async (event) => {
     let timer = setInterval(() => portCheckState(port), 1000);
-    onLockedBack(port, mainWindow, timer, IO.WaitForDispensingLockBack);
+    await onLockedBack(port, mainWindow, timer, IO.WaitForDispensingLockBack);
   });
-
-  ipcMain.removeAllListeners(IO.WaitForDispensingLockBack);
 }

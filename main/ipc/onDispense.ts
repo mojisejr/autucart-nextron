@@ -3,15 +3,18 @@ import { IO, GLOBAL } from "../enums/ipc.enums";
 import { getDispensingDataFromHN, setOpenSlot } from "../db/slot";
 import { portUnlockSlot } from "../commands";
 import { SerialPort } from "serialport";
+import { onGetSlotsState } from "./onGetSlotsState";
 
-export function onDispense(port: SerialPort, mainWindow: BrowserWindow) {
+export async function onDispense(port: SerialPort, mainWindow: BrowserWindow) {
   ipcMain.handle(IO.Dispense, async (event, hn) => {
     const data = await getDispensingDataFromHN(hn);
     if (data != null) {
       portUnlockSlot(port, data.id);
+      await onGetSlotsState(mainWindow);
       const isOpened = await setOpenSlot({ id: data.id, hn: data.hn });
       if (isOpened) {
-        mainWindow.webContents.send(IO.Dispensing, data.id, data.hn);
+        // mainWindow.webContents.send(IO.Dispensing, data.id, data.hn);
+        mainWindow.webContents.send(IO.Dispensed, data.id, data.hn);
       } else {
         mainWindow.webContents.send(
           GLOBAL.Error,
@@ -25,6 +28,4 @@ export function onDispense(port: SerialPort, mainWindow: BrowserWindow) {
       );
     }
   });
-
-  ipcMain.removeAllListeners(IO.Dispense);
 }

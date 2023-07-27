@@ -1,11 +1,13 @@
-import { ipcMain } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import { DB } from "../enums/ipc.enums";
 import { getSlotsState } from "../db/slot";
 
-export function onGetSlotsState() {
-  ipcMain.handle(DB.GetAllSlots, async (event) => {
-    return await getSlotsState();
-  });
+export async function onGetSlotsState(mainWindow: BrowserWindow) {
+  const slots = await getSlotsState();
+  console.log("get states on backend");
+  mainWindow.webContents.send(DB.GetAllSlots, slots);
+  // ipcMain.handle(DB.GetAllSlots, async (event) => {
 
-  ipcMain.removeAllListeners(DB.GetAllSlots);
+  //   return await getSlotsState();
+  // });
 }

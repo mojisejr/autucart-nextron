@@ -1,21 +1,18 @@
 import { BrowserWindow, app } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
-import { ipcMain } from "electron";
-import { getDispensingDataFromHN } from "./db/slot";
 import { SerialPort } from "serialport";
 import { onRegisterSlot } from "./ipc/onRegisterSlot";
 import { onGetSlotsState } from "./ipc/onGetSlotsState";
-import { initSerialPort, portUnlockSlot } from "./commands";
+import { getPortList, initSerialPort, portUnlockSlot } from "./commands";
 import { onWaitForLockBack } from "./ipc/onWaitForLockBack";
 import { onUnlock } from "./ipc/onUnlock";
 import { onLogin } from "./ipc/onLogin";
-import { GLOBAL, IO } from "./enums/ipc.enums";
 import { onDispense } from "./ipc/onDispense";
 import { onWaitForDispensingLockBack } from "./ipc/onWaitForDispeningLocked";
 import { onDispeningClear } from "./ipc/onDispensingClear";
-import { onDispensingClosed } from "./ipc/onDispensingClosed";
 import { onDispeningContinue } from "./ipc/onDispensingContinue";
+import { onGetPortList } from "./ipc/onGetPortList";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 let port: SerialPort;
@@ -47,23 +44,25 @@ if (isProd) {
 
   //@DEV: Initialize and open serial port
   port = initSerialPort();
+
   onLogin();
+  await onGetPortList(mainWindow);
   //@Dev: get slot states
-  onGetSlotsState();
+  await onGetSlotsState(mainWindow);
   //@Dev: register hn to slot
-  onRegisterSlot(mainWindow);
+  await onRegisterSlot(mainWindow);
   //@Dev: unlock slot
-  onUnlock(port, mainWindow);
+  await onUnlock(port, mainWindow);
   //@Dev: waiting for lockback
-  onWaitForLockBack(port, mainWindow);
+  await onWaitForLockBack(port, mainWindow);
   //@Dev: despensing start
-  onDispense(port, mainWindow);
+  await onDispense(port, mainWindow);
   //@Dev: waiting for dispensing lockback
-  onWaitForDispensingLockBack(port, mainWindow);
+  await onWaitForDispensingLockBack(port, mainWindow);
   //@Dev: clear
-  onDispeningClear(mainWindow);
+  await onDispeningClear(mainWindow);
   //@Dev: continue
-  onDispeningContinue(mainWindow);
+  await onDispeningContinue(mainWindow);
 })();
 
 app.on("window-all-closed", () => {

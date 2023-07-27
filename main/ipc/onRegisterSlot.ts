@@ -1,11 +1,12 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { registerSlot } from "../db/slot";
 import { DB, GLOBAL } from "../enums/ipc.enums";
+import { onGetSlotsState } from "./onGetSlotsState";
 
-export function onRegisterSlot(mainWindow: BrowserWindow) {
+export async function onRegisterSlot(mainWindow: BrowserWindow) {
   ipcMain.handle(DB.RegisterSlot, async (event, id, hn) => {
-    // await updateSlotState(slotId, hn, false, registered);
     const result = await registerSlot({ id, hn });
+    await onGetSlotsState(mainWindow);
     if (!result) {
       mainWindow.webContents.send(
         GLOBAL.Error,

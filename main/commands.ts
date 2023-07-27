@@ -154,6 +154,10 @@ function getUnlockCommand(id: number) {
   return command;
 }
 
+async function getPortList() {
+  return await SerialPort.list();
+}
+
 export {
   commands,
   initSerialPort,
@@ -161,4 +165,5 @@ export {
   portUnlockSlot,
   getReadStateCommand,
   getUnlockCommand,
+  getPortList,
 };

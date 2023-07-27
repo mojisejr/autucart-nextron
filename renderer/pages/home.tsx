@@ -17,6 +17,8 @@ import { ISlot } from "../interfaces/slot";
 import { DB, IO } from "../enums/ipc-enums";
 import { useApp } from "../contexts/appContext";
 import ClearOrContinue from "../components/Dialogs/clearOrContinue";
+import { logEvents } from "../utils/event-log";
+import Link from "next/link";
 
 function Home() {
   const [slots, setSlotsData] = useState<ISlot[]>([]);
@@ -44,77 +46,143 @@ function Home() {
   const { user } = useApp();
 
   useEffect(() => {
-    const found = slots.filter((s) => s.registered == true);
-    if (slots.length > 0 && found.length > 0) {
-      setDisableDispensing(false);
-    } else {
-      setDisableDispensing(true);
+    if (slots !== undefined && slots.length > 0) {
+      const found = slots.filter((s) => s.registered == true);
+      if (slots.length > 0 && found.length > 0) {
+        setDisableDispensing(false);
+      } else {
+        setDisableDispensing(true);
+      }
     }
+
+    ipcRenderer.on(DB.GetAllSlots, (event, slots) => {
+      console.log("get slot states");
+      console.log(slots);
+      setSlotsData(slots);
+      ipcRenderer.removeAllListeners(DB.GetAllSlots);
+      // logEvents();
+    });
   }, [slots]);
 
-  useEffect(() => {
-    ipcRenderer.on(DB.SlotRegistered, (event, id, hn) => {
-      console.log("REGISTERED");
-      ipcRenderer.invoke(IO.Unlock, id, hn, true);
-      setIsLockWait({ slot: id, hn, wait: true });
-    });
+  useEffect(
+    () => {
+      ipcRenderer.on(DB.SlotRegistered, handleRegister);
 
-    ipcRenderer.on(IO.Opening, (event, id) => {
-      console.log("OPENING");
-      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
-        const found = slots.filter((s) => s.id == id);
-        setSlotsData(slots);
-        setIsLockWait({ slot: found[0].id, hn: found[0].hn, wait: true });
-      });
-    });
+      ipcRenderer.on(IO.Opening, handleOpening);
 
-    ipcRenderer.on(IO.Closed, (event, id, hn) => {
-      console.log("CLOSED");
-      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
-        setSlotsData(slots);
-        setIsLockWait({ slot: null, hn: null, wait: false });
-      });
-    });
+      ipcRenderer.on(IO.Closed, handleClosed);
 
-    ipcRenderer.invoke(DB.GetAllSlots).then((slots) => {
-      console.log("INITIAL");
-      setSlotsData(slots);
-    });
+      ipcRenderer.on(IO.Unlocked, handleUnlocked);
 
-    ipcRenderer.on(IO.Unlocked, (event, id, hn) => {
-      console.log("UNLOCKED");
-      ipcRenderer.invoke(DB.GetAllSlots).then((slots) => {
-        setIsLockWait({ slot: id, hn, wait: true });
-        setSlotsData(slots);
-      });
-    });
+      ipcRenderer.on(IO.Dispensed, handleDispensed);
 
-    ipcRenderer.on(IO.Dispensing, (event, id, hn) => {
-      console.log("DISPENSING");
-      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
-        setSlotsData(slots);
-        setIsDispensingWait({ slot: id, hn: hn, wait: true });
-      });
-    });
+      ipcRenderer.on(IO.Dispensing, handleDispensing);
 
-    ipcRenderer.on(IO.DispensingClosed, (event, id, hn) => {
-      console.log("DISPENSING CLOSED");
-      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
-        setSlotsData(slots);
-        setIsDispensingWait({ slot: id, hn: hn, wait: false });
-        setIsDispensingClosed({ slot: id, hn: hn, open: true });
-      });
-    });
+      ipcRenderer.on(IO.DispensingClosed, handleDispensingClosed);
 
-    ipcRenderer.on(IO.DispensingFinished, (event, id, hn) => {
-      console.log("DISPENSING FINISHED");
-      ipcRenderer.invoke(DB.GetAllSlots).then((slots: ISlot[]) => {
-        setSlotsData(slots);
-        setIsDispensingWait({ slot: id, hn: hn, wait: false });
-        setIsDispensingClosed({ slot: id, hn: hn, open: false });
-      });
-    });
-  }, [isLockWait.wait]);
+      ipcRenderer.on(IO.DispensingFinished, handleDispensingFinished);
+
+      ipcRenderer.on(DB.GetAllSlots, handleGetAllSlots);
+    },
+
+    [
+      /*isLockWait.wait*/
+    ]
+  );
+
+  const handleRegister = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    console.log("REGISTERED");
+    ipcRenderer.invoke(IO.Unlock, id, hn, true);
+    setIsLockWait({ slot: id, hn, wait: true });
+    logEvents();
+  };
+
+  const handleOpening = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    console.log("OPENING");
+    setIsLockWait({ slot: id, hn, wait: true });
+    logEvents();
+  };
+
+  const handleClosed = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    console.log("CLOSED");
+    setIsLockWait({ slot: null, hn: null, wait: false });
+    logEvents();
+  };
+
+  const handleUnlocked = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    console.log("UNLOCKED");
+    setIsLockWait({ slot: id, hn, wait: true });
+    logEvents();
+  };
+
+  const handleDispensed = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    console.log("Dispensed");
+    setIsDispensingWait({ slot: id, hn: hn, wait: true });
+    logEvents();
+  };
+
+  const handleDispensing = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    ipcRenderer.off(IO.Dispensing, handleDispensing);
+    console.log("DISPENSING");
+    setIsDispensingWait({ slot: id, hn: hn, wait: true });
+    logEvents();
+  };
+
+  const handleDispensingClosed = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    ipcRenderer.off(IO.Dispensing, handleDispensing);
+    console.log("DISPENSING CLOSED");
+    setIsDispensingWait({ slot: id, hn: hn, wait: false });
+    setIsDispensingClosed({ slot: id, hn: hn, open: true });
+    logEvents();
+  };
+
+  const handleDispensingFinished = (
+    event: Electron.IpcRendererEvent,
+    id: number,
+    hn: string
+  ) => {
+    ipcRenderer.off(IO.Dispensing, handleDispensing);
+    console.log("DISPENSING FINISHED");
+    setIsDispensingWait({ slot: id, hn: hn, wait: false });
+    setIsDispensingClosed({ slot: id, hn: hn, open: false });
+    logEvents();
+  };
+
+  const handleGetAllSlots = (event: Electron.IpcRendererEvent, slots) => {
+    ipcRenderer.off(IO.Dispensing, handleDispensing);
+    console.log("get slot states");
+    console.log(slots);
+    setSlotsData(slots);
+    logEvents();
+  };
 
   const handleDispense = () => {
     setOpenDispenseModal(true);
@@ -134,14 +202,17 @@ function Home() {
               height={85}
               alt="logo"
             />
+
             <div className="flex flex-col gap-2 text-[16px]">
               {user != undefined ? (
                 <div className="font-bold">User: {user.stuffId}</div>
               ) : null}
-              <button className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md">
-                <BsGear size={20} />
-                <span>Setting</span>
-              </button>
+              <Link href="/setting">
+                <div className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md cursor-pointer">
+                  <BsGear size={20} />
+                  <span>Setting</span>
+                </div>
+              </Link>
               <button className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md">
                 <BsBook size={20} />
                 <span>Documents</span>
@@ -155,11 +226,24 @@ function Home() {
         </div>
         <div className="col-span-10 bg-[#F3F3F3] rounded-l-[50px]">
           <div className="w-full h-full p-[2rem] flex flex-col gap-[1.2rem]">
-            <ul className="flex gap-2 flex-wrap">
-              {slots.map((s, index) => (
-                <Slot key={index} slotData={s} />
-              ))}
-            </ul>
+            <>
+              {slots === undefined ? (
+                <div>Error: undefined</div>
+              ) : (
+                <>
+                  {slots.length <= 0 ? (
+                    <div>Loading...</div>
+                  ) : (
+                    <ul className="flex gap-2 flex-wrap">
+                      {slots.map((s, index) => (
+                        <Slot key={index} slotData={s} />
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+            </>
+
             <button
               disabled={disableDispensing}
               onClick={() => handleDispense()}

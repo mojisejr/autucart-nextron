@@ -17,7 +17,7 @@ export const LockedSlot = ({ slotNo, hn, date, time }: LockedSlotProps) => {
       setBg("bg-[#007852");
     });
 
-    ipcRenderer.on(IO.DispeningFinished, () => {
+    ipcRenderer.on(IO.DispensingFinished, () => {
       setBg("bg-[#F6F6F6");
     });
   }, []);
