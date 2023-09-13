@@ -1,14 +1,8 @@
-import { app } from "electron";
+import { app, ipcMain, webContents } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
-import { ipcMain } from "electron";
-import {
-  getSlotState,
-  getSlotsState,
-  lockSlot,
-  unlockSlot,
-  isLocked,
-} from "./db";
+import { connect } from "mqtt";
+import { mqttConfig, url } from "./mqtt/mqtt.config";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -32,41 +26,35 @@ if (isProd) {
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   }
+
+  const mqtt = connect(url);
+
+  mqtt.subscribe("ku_states");
+
+  mqtt.on("connect", () => {
+    mqtt.on("message", (topic, payload) => {
+      if (topic == "ku_states") {
+        if (payload.toString() == "0") {
+          mainWindow.webContents.send("closed");
+        } else {
+          console.log("opening code is : ", payload.toString());
+        }
+      }
+    });
+  });
+
+  mqtt.publish("init", JSON.stringify({ slot: 1 }));
+  // mqtt.publish(
+  //   "unlock",
+  //   JSON.stringify({ slot: 1, hn: 506623, timestamp: new Date().getTime() })
+  // );
 
   //@DEV: IPC MAIN
   /////////////////
-
-  ipcMain.handle("getSlotsState", (event) => {
-    console.log("getSlotsState");
-    return getSlotsState();
-  });
-
-  ipcMain.handle("lockSlot", (event, slotNo: number, hn: string) => {
-    console.log("lockSlot");
-    lockSlot(slotNo, hn);
-    getSlotsState();
-    mainWindow.webContents.send("locked", slotNo);
-  });
-
-  ipcMain.handle("unlockSlot", (event, slotNo: number) => {
-    console.log("unlockSlot");
-    unlockSlot(slotNo);
-    getSlotsState();
-    mainWindow.webContents.send("unlocked", slotNo);
-  });
-
-  ipcMain.handle("isLocked", (event, slotNo: number) => {
-    console.log("isLocked");
-    return isLocked(slotNo);
-  });
 })();
 
 app.on("window-all-closed", () => {
   app.quit();
 });
-
-// ipcMain.on("update:slot", async (event, args: number) => {
-//   await prisma.slot.update({ where: { id: args } });
-// });
