@@ -13,8 +13,8 @@
         "z": "a0d5b0505bc69565",
         "name": "KU16-Rx",
         "serial": "05697e61e7f516ca",
-        "x": 160,
-        "y": 420,
+        "x": 320,
+        "y": 380,
         "wires": [
             [
                 "934d4470e1799b14"
@@ -27,8 +27,8 @@
         "z": "a0d5b0505bc69565",
         "name": "KU16-Tx",
         "serial": "05697e61e7f516ca",
-        "x": 1480,
-        "y": 520,
+        "x": 1300,
+        "y": 560,
         "wires": [],
         "info": "# Serial Port Comunication Endpoint\n\nตัวส่งคำสั่งออกไปที่ SerialPort"
     },
@@ -43,151 +43,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1290,
-        "y": 500,
+        "x": 1130,
+        "y": 560,
         "wires": [
             [
                 "1d1239c19998e85e"
             ]
         ]
-    },
-    {
-        "id": "d2a0140d0a44595d",
-        "type": "switch",
-        "z": "a0d5b0505bc69565",
-        "name": "slot-select",
-        "property": "payload.slot",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "1",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "2",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "3",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "4",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "5",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "6",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "7",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "8",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "9",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "10",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "11",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "12",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "13",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "14",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "15",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 15,
-        "x": 510,
-        "y": 600,
-        "wires": [
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ],
-            [
-                "c0e6fb46f469ab6e"
-            ]
-        ],
-        "info": "# Input Selector\n\nตัวเลือกส่งต่อข้อมูลไปยัง Executor เพื่อ run คำสั่งไปปลดล็อก\nKU16 ที่ slot ที่ต้องการ\n\n"
     },
     {
         "id": "c0e6fb46f469ab6e",
@@ -200,8 +62,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 840,
-        "y": 680,
+        "x": 560,
+        "y": 480,
         "wires": [
             [
                 "515ffc6763161109",
@@ -228,30 +90,11 @@
         "bytopic": "all",
         "topic": "payload.state",
         "outputs": 1,
-        "x": 1100,
-        "y": 500,
+        "x": 920,
+        "y": 540,
         "wires": [
             [
                 "4bf5e58884f8d768"
-            ]
-        ]
-    },
-    {
-        "id": "934d4470e1799b14",
-        "type": "function",
-        "z": "a0d5b0505bc69565",
-        "name": "state-parser",
-        "func": "let slotStates = msg.payload[3];\nmsg.payload = slotStates;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 430,
-        "y": 420,
-        "wires": [
-            [
-                "959803efdf106104"
             ]
         ]
     },
@@ -272,8 +115,8 @@
         "drop": false,
         "allowrate": false,
         "outputs": 1,
-        "x": 1100,
-        "y": 560,
+        "x": 920,
+        "y": 600,
         "wires": [
             [
                 "4bf5e58884f8d768"
@@ -320,8 +163,8 @@
         "correl": "",
         "expiry": "",
         "broker": "8fbde230d2e3fc73",
-        "x": 1860,
-        "y": 300,
+        "x": 1480,
+        "y": 360,
         "wires": []
     },
     {
@@ -329,7 +172,7 @@
         "type": "mqtt in",
         "z": "a0d5b0505bc69565",
         "name": "",
-        "topic": "unlock",
+        "topic": "insert",
         "qos": "0",
         "datatype": "json",
         "broker": "8fbde230d2e3fc73",
@@ -337,12 +180,11 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 150,
-        "y": 600,
+        "x": 190,
+        "y": 580,
         "wires": [
             [
-                "d2a0140d0a44595d",
-                "c045b650db2a273b"
+                "ba2af80a021590cd"
             ]
         ],
         "info": "# MQTT Input\n\nคำสั่ง MQTT ที่เข้ามาจาก Application\nมากับ TOPIC unlock ที่มีโครงสร้าง\n\n`{\n    slot: เลข slot,\n    hn: hn คนไข้\n    timestamp: เวลาที่ส่งข้อมูลเข้ามา unlock\n}`"
@@ -369,11 +211,11 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 1050,
-        "y": 320,
+        "x": 850,
+        "y": 380,
         "wires": [
             [
-                "e397285c62aed4a2"
+                "6dcf56343043a885"
             ],
             [
                 "68d1a2f48e9082ed"
@@ -387,21 +229,21 @@
         "name": "manual-tricker",
         "props": [
             {
-                "p": "payload.slot",
-                "v": "1",
-                "vt": "num"
+                "p": "payload"
             }
         ],
         "repeat": "",
         "crontab": "",
         "once": false,
-        "onceDelay": 0.1,
+        "onceDelay": "0.5",
         "topic": "",
-        "x": 190,
-        "y": 540,
+        "payload": "{\"slot\":1,\"hn\":\"502034\",\"timestamp\":1223403}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 800,
         "wires": [
             [
-                "d2a0140d0a44595d"
+                "ed6c1c2eabf9e738"
             ]
         ]
     },
@@ -442,8 +284,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 3,
-        "x": 1290,
-        "y": 360,
+        "x": 1030,
+        "y": 460,
         "wires": [
             [
                 "e397285c62aed4a2"
@@ -461,36 +303,19 @@
         "type": "function",
         "z": "a0d5b0505bc69565",
         "name": "OSP",
-        "func": "switch(msg.payload) {\n    case 7:  {\n        msg.payload = 0; \n        break;\n        }\n    case 6: { \n        msg.payload = 1;\n        break; \n        }\n    case 5: {\n        msg.payload = 2; \n        break;\n        }\n    case 3: {\n        msg.payload = 3; \n        break;\n    }\n}\nmsg.topic = `SELECT * FROM slot`;\nreturn msg;",
+        "func": "switch(msg.payload) {\n    case 6: { \n        msg.payload = 1;\n        break; \n        }\n    case 5: {\n        msg.payload = 2; \n        break;\n        }\n    case 3: {\n        msg.payload = 3; \n        break;\n    }\n}\nmsg.topic = `SELECT * FROM slot`;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1490,
-        "y": 300,
+        "x": 1250,
+        "y": 440,
         "wires": [
             [
                 "64500a408e3b9305"
             ]
         ]
-    },
-    {
-        "id": "c045b650db2a273b",
-        "type": "debug",
-        "z": "a0d5b0505bc69565",
-        "name": "unlock-msg",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 350,
-        "y": 780,
-        "wires": []
     },
     {
         "id": "ccc114c00422efd1",
@@ -505,8 +330,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1860,
-        "y": 380,
+        "x": 1460,
+        "y": 440,
         "wires": []
     },
     {
@@ -522,11 +347,11 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 1090,
-        "y": 380,
+        "x": 190,
+        "y": 520,
         "wires": [
             [
-                "4bf5e58884f8d768"
+                "3d6fd1095a70ea6c"
             ]
         ]
     },
@@ -538,8 +363,8 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "db",
-        "x": 1270,
-        "y": 780,
+        "x": 1090,
+        "y": 820,
         "wires": [
             [
                 "d7d9dff708288fb1"
@@ -559,8 +384,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1470,
-        "y": 780,
+        "x": 1290,
+        "y": 820,
         "wires": []
     },
     {
@@ -582,8 +407,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1150,
-        "y": 640,
+        "x": 970,
+        "y": 680,
         "wires": [
             [
                 "1d1239c19998e85e"
@@ -595,14 +420,14 @@
         "type": "function",
         "z": "a0d5b0505bc69565",
         "name": "upd-input-state",
-        "func": "msg.topic = `UPDATE slot SET hn=${msg.payload.hn}, timestamp=${msg.payload.timestamp} WHERE slotId=${msg.payload.slot}`;\nreturn msg;",
+        "func": "msg.topic = `UPDATE slot SET hn=${msg.payload.hn}, timestamp=${msg.payload.timestamp}, opening=true WHERE slotId=${msg.payload.slot}`;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1060,
-        "y": 740,
+        "x": 920,
+        "y": 820,
         "wires": [
             [
                 "3b57c8a69101952f"
@@ -617,14 +442,320 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "db",
-        "x": 1670,
-        "y": 300,
+        "x": 1310,
+        "y": 360,
         "wires": [
             [
                 "fa84f15101246f20",
                 "ccc114c00422efd1"
             ]
         ]
+    },
+    {
+        "id": "934d4470e1799b14",
+        "type": "function",
+        "z": "a0d5b0505bc69565",
+        "name": "state-parser",
+        "func": "let slotStates = msg.payload[3];\nmsg.payload = slotStates;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 380,
+        "wires": [
+            [
+                "959803efdf106104"
+            ]
+        ]
+    },
+    {
+        "id": "685168ee0ac7218a",
+        "type": "inject",
+        "z": "a0d5b0505bc69565",
+        "name": "reset",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "UPDATE slot SET opening=false, occupied=false;",
+        "x": 190,
+        "y": 700,
+        "wires": [
+            [
+                "52b6949951d4eeda"
+            ]
+        ]
+    },
+    {
+        "id": "0818f154bcfeb9a3",
+        "type": "inject",
+        "z": "a0d5b0505bc69565",
+        "name": "findAll",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "SELECT * FROM slot;",
+        "x": 190,
+        "y": 740,
+        "wires": [
+            [
+                "2a943cf56b74ba70"
+            ]
+        ]
+    },
+    {
+        "id": "6dcf56343043a885",
+        "type": "function",
+        "z": "a0d5b0505bc69565",
+        "name": "get-opening",
+        "func": "msg.topic = `SELECT * FROM slot WHERE opening=true`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 260,
+        "wires": [
+            [
+                "aad3862c818fc018"
+            ]
+        ]
+    },
+    {
+        "id": "aad3862c818fc018",
+        "type": "sqlite",
+        "z": "a0d5b0505bc69565",
+        "mydb": "7b1f540ae7b80b30",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "db",
+        "x": 1070,
+        "y": 260,
+        "wires": [
+            [
+                "da06b39502bf938a"
+            ]
+        ]
+    },
+    {
+        "id": "da06b39502bf938a",
+        "type": "function",
+        "z": "a0d5b0505bc69565",
+        "name": "update-closed",
+        "func": "if(msg.payload[0].slotId != undefined) {\n    msg.topic = `UPDATE slot SET opening=false WHERE slotId=${msg.payload[0].slotId}`;\n} \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1260,
+        "y": 260,
+        "wires": [
+            [
+                "77ceefc52adf85f4"
+            ]
+        ]
+    },
+    {
+        "id": "77ceefc52adf85f4",
+        "type": "sqlite",
+        "z": "a0d5b0505bc69565",
+        "mydb": "7b1f540ae7b80b30",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "db",
+        "x": 1130,
+        "y": 360,
+        "wires": [
+            [
+                "e397285c62aed4a2"
+            ]
+        ]
+    },
+    {
+        "id": "28a09d68f9fda593",
+        "type": "mqtt in",
+        "z": "a0d5b0505bc69565",
+        "name": "",
+        "topic": "reset",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "8fbde230d2e3fc73",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 640,
+        "wires": [
+            [
+                "5eb6fd18df6477cc"
+            ]
+        ]
+    },
+    {
+        "id": "5eb6fd18df6477cc",
+        "type": "function",
+        "z": "a0d5b0505bc69565",
+        "name": "reset-data",
+        "func": "msg.topic = `UPDATE slot SET hn=\"\", opening=false, occupied=false WHERE slotId=${msg.payload.slot}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 640,
+        "wires": [
+            [
+                "55364735a4627af7"
+            ]
+        ]
+    },
+    {
+        "id": "55364735a4627af7",
+        "type": "link out",
+        "z": "a0d5b0505bc69565",
+        "name": "mqtt-reset",
+        "mode": "link",
+        "links": [
+            "6671bd0cc40828f8"
+        ],
+        "x": 445,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "6671bd0cc40828f8",
+        "type": "link in",
+        "z": "a0d5b0505bc69565",
+        "name": "db",
+        "links": [
+            "52b6949951d4eeda",
+            "55364735a4627af7",
+            "2a943cf56b74ba70"
+        ],
+        "x": 1005,
+        "y": 880,
+        "wires": [
+            [
+                "3b57c8a69101952f"
+            ]
+        ]
+    },
+    {
+        "id": "52b6949951d4eeda",
+        "type": "link out",
+        "z": "a0d5b0505bc69565",
+        "name": "reset-manual",
+        "mode": "link",
+        "links": [
+            "6671bd0cc40828f8"
+        ],
+        "x": 285,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "2a943cf56b74ba70",
+        "type": "link out",
+        "z": "a0d5b0505bc69565",
+        "name": "findAll-manual",
+        "mode": "link",
+        "links": [
+            "6671bd0cc40828f8"
+        ],
+        "x": 285,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "05d552d1ed2becf0",
+        "type": "link in",
+        "z": "a0d5b0505bc69565",
+        "name": "CSS-IN",
+        "links": [
+            "3d6fd1095a70ea6c"
+        ],
+        "x": 1055,
+        "y": 620,
+        "wires": [
+            [
+                "4bf5e58884f8d768"
+            ]
+        ]
+    },
+    {
+        "id": "3d6fd1095a70ea6c",
+        "type": "link out",
+        "z": "a0d5b0505bc69565",
+        "name": "mqtt-init",
+        "mode": "link",
+        "links": [
+            "05d552d1ed2becf0"
+        ],
+        "x": 285,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "7b983aff9a6531bc",
+        "type": "link in",
+        "z": "a0d5b0505bc69565",
+        "name": "executor-in",
+        "links": [
+            "ba2af80a021590cd",
+            "ed6c1c2eabf9e738"
+        ],
+        "x": 445,
+        "y": 480,
+        "wires": [
+            [
+                "c0e6fb46f469ab6e"
+            ]
+        ]
+    },
+    {
+        "id": "ba2af80a021590cd",
+        "type": "link out",
+        "z": "a0d5b0505bc69565",
+        "name": "mqtt-insert",
+        "mode": "link",
+        "links": [
+            "7b983aff9a6531bc"
+        ],
+        "x": 305,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "ed6c1c2eabf9e738",
+        "type": "link out",
+        "z": "a0d5b0505bc69565",
+        "name": "manual-tricker",
+        "mode": "link",
+        "links": [
+            "7b983aff9a6531bc"
+        ],
+        "x": 315,
+        "y": 800,
+        "wires": []
     },
     {
         "id": "05697e61e7f516ca",
@@ -675,7 +806,7 @@
     {
         "id": "7b1f540ae7b80b30",
         "type": "sqlitedb",
-        "db": "/tmp/sqlite/slot.db",
+        "db": "/Users/nonthasak.l/Desktop/deprecision/autocart-nextron/db/slot.db",
         "mode": "RWC"
     }
 ]

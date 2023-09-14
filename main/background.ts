@@ -45,11 +45,14 @@ if (isProd) {
     });
   });
 
-  mqtt.publish("init", JSON.stringify({ slot: 1 }));
+  // mqtt.publish("init", JSON.stringify({ slot: 1 }));
   // mqtt.publish(
-  //   "unlock",
+  //   "insert",
   //   JSON.stringify({ slot: 1, hn: 506623, timestamp: new Date().getTime() })
   // );
+
+  // mqtt.publish("dispense", JSON.stringify({slot: 1}));
+  mqtt.publish("reset", JSON.stringify({ slot: 1 }));
 
   //@DEV: IPC MAIN
   /////////////////
