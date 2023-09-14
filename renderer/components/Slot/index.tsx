@@ -7,11 +7,11 @@ import InputSlot from "../Dialogs/inputSlot";
 
 interface SlotProps {
   slotData: {
-    slotNo: number;
-    locked: boolean;
+    slotId: number;
+    opening: boolean;
+    occupied: boolean;
     hn?: string;
-    date?: string;
-    time?: string;
+    timestamp: number;
   };
 }
 
@@ -28,22 +28,22 @@ const Slot = ({ slotData }: SlotProps) => {
 
   return (
     <button onClick={handleSlot}>
-      {slotData.locked ? (
+      {slotData.occupied ? (
         <LockedSlot
-          slotNo={slotData.slotNo}
+          slotNo={slotData.slotId}
           hn={slotData.hn}
-          date={slotData.date}
-          time={slotData.time}
+          date={new Date(slotData.timestamp).toLocaleDateString()}
+          time={new Date(slotData.timestamp).getTime().toString()}
         />
       ) : (
-        <EmptySlot slotNo={slotData.slotNo} />
+        <EmptySlot slotNo={slotData.slotId} />
       )}
       <Modal isOpen={openModal} onClose={handleSlot}>
         <>
-          {slotData.locked ? (
-            <ClearSlot slotNo={slotData.slotNo} onClose={handleSlot} />
+          {slotData.occupied ? (
+            <ClearSlot slotNo={slotData.slotId} onClose={handleSlot} />
           ) : (
-            <InputSlot slotNo={slotData.slotNo} onClose={handleSlot} />
+            <InputSlot slotNo={slotData.slotId} onClose={handleSlot} />
           )}
         </>
       </Modal>

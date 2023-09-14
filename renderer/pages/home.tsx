@@ -9,9 +9,12 @@ import { ipcRenderer } from "electron";
 
 function Home() {
   const [active, setActive] = useState<boolean>(false);
+  const [slot, setSlot] = useState([]);
+
   useEffect(() => {
-    ipcRenderer.on("closed", () => {
-      toast("locked");
+    ipcRenderer.on("ku_states", (event, args) => {
+      console.log(args);
+      setSlot(args);
     });
     setActive(true);
   }, []);
@@ -53,7 +56,15 @@ function Home() {
           <div className="col-span-10 bg-[#F3F3F3] rounded-l-[50px]">
             <div className="w-full h-full p-[2rem] flex flex-col gap-[1.2rem]">
               <div className="self-start font-bold text-3xl">Drawers</div>
-              <ul className="flex gap-2">No Data</ul>
+              {slot.length <= 0 ? (
+                <ul className="flex gap-2">No Data</ul>
+              ) : (
+                <ul>
+                  {slot.map((s, index) => (
+                    <Slot key={index} slotData={s} />
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>

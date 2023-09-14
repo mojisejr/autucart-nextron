@@ -26,33 +26,30 @@ if (isProd) {
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   }
 
   const mqtt = connect(url);
-
+  mqtt.publish("init", JSON.stringify({ slot: 1 }));
   mqtt.subscribe("ku_states");
 
   mqtt.on("connect", () => {
     mqtt.on("message", (topic, payload) => {
+      console.log(topic);
       if (topic == "ku_states") {
-        if (payload.toString() == "0") {
-          mainWindow.webContents.send("closed");
-        } else {
-          console.log("opening code is : ", payload.toString());
-        }
+        console.log("payload: ", JSON.parse(payload.toString()));
+        mainWindow.webContents.send("ku_states", payload);
       }
     });
   });
 
-  // mqtt.publish("init", JSON.stringify({ slot: 1 }));
   // mqtt.publish(
   //   "insert",
   //   JSON.stringify({ slot: 1, hn: 506623, timestamp: new Date().getTime() })
   // );
 
   // mqtt.publish("dispense", JSON.stringify({slot: 1}));
-  mqtt.publish("reset", JSON.stringify({ slot: 1 }));
+  // mqtt.publish("reset", JSON.stringify({ slot: 1 }));
 
   //@DEV: IPC MAIN
   /////////////////
