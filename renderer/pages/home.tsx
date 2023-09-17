@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Slot from "../components/Slot";
 import Image from "next/image";
-import { useRouter } from "next/router";
 
-import { ipcRenderer } from "electron";
 import { BsBook, BsGear, BsQuestionCircle } from "react-icons/bs";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Modal from "../components/Modals";
@@ -15,24 +13,22 @@ import LockWait from "../components/Dialogs/lockWait";
 import DispenseSlot from "../components/Dialogs/dispenseSlot";
 import DispensingWait from "../components/Dialogs/dispensingWait";
 
-import { ISlot } from "../interfaces/slot";
-import { useApp } from "../contexts/appContext";
 import ClearOrContinue from "../components/Dialogs/clearOrContinue";
-// import { logEvents } from "../utils/event-log";
 import Link from "next/link";
 import { useKuStates } from "../hooks/useKuStates";
 import Loading from "../components/Shared/Loading";
 import { useDispense } from "../hooks/useDispense";
 import { useUnlock } from "../hooks/useUnlock";
-import { clearScreenDown } from "readline";
+import { useApp } from "../contexts/appContext";
 
 function Home() {
   const { slots, canDispense } = useKuStates();
   const { unlocking } = useUnlock();
   const { dispensing } = useDispense();
-  const [openAuthModal] = useState<boolean>(true);
+  const [openAuthModal, setOpenAuthModal] = useState<boolean>(true);
   const [openDispenseModal, setOpenDispenseModal] = useState<boolean>(false);
   const [closeClearOrCon, setCloseClearOrCon] = useState<boolean>(false);
+  const { user, logged } = useApp();
 
   const handleCloseClearOrCon = () => {
     setCloseClearOrCon(true);
@@ -122,13 +118,18 @@ function Home() {
         position="top-center"
         hideProgressBar
       />
-      {/* {!user ? (
+      {!user ? (
         <>
-          <Modal isOpen={openAuthModal} onClose={() => {}}>
+          <Modal
+            isOpen={openAuthModal}
+            onClose={() => {
+              logged ? setOpenAuthModal(false) : null;
+            }}
+          >
             <Auth />
           </Modal>
         </>
-      ) : null} */}
+      ) : null}
       <Modal
         isOpen={openDispenseModal}
         onClose={() => setOpenDispenseModal(false)}

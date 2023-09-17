@@ -20,12 +20,14 @@ const Auth = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     // const user = await ipcRenderer.invoke(AUTHENTICATION.Login, data.stuffId);
+    const mockStuffId = "1234";
     const user = null;
-    if (user != null || user != undefined) {
-      toast(`loggedin! ${user.stuffId}`);
+    // if (user != null || user != undefined) {
+    if (data.stuffId == mockStuffId) {
+      toast(`loggedin! ${data.stuffId}`, { toastId: 99, type: "success" });
       setUser(user);
     } else {
-      toast(`invalid user`);
+      toast(`Invalid user`, { toastId: 99, type: "error" });
     }
   };
 

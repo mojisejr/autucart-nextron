@@ -8,12 +8,14 @@ type appContextType = {
     stuffId: string;
     role: string;
   };
+  logged: boolean;
   setUser?: (user: { stuffId: string; role: string }) => void;
 };
 
 //@Dev define context default values
 const appContextDefaultValue: appContextType = {
   user: null,
+  logged: false,
 };
 
 //@Dev create context with context type
@@ -23,9 +25,11 @@ const AppContext = createContext<appContextType>(appContextDefaultValue);
 
 export function AppProvider({ children }: appProviderProps) {
   const [user, setActiveUser] = useState<{ stuffId: string; role: string }>();
+  const [logged, setLogged] = useState<boolean>(false);
+
   useEffect(() => {
     if (user !== null || user !== undefined) {
-      console.log("login: ", user);
+      setLogged(true);
     }
   }, [user]);
 
@@ -35,6 +39,7 @@ export function AppProvider({ children }: appProviderProps) {
 
   const value = {
     user,
+    logged,
     setUser,
   };
 

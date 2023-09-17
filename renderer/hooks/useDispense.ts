@@ -53,7 +53,7 @@ export const useDispense = () => {
         reset: true,
       });
     });
-  }, []);
+  }, [dispensing]);
 
   const dispense = ({ slot, hn, timestamp }: Partial<Dispensing>) => {
     ipcRenderer.invoke("dispense", { hn, slot, timestamp });

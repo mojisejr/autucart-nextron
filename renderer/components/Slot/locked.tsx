@@ -19,7 +19,7 @@ export const LockedSlot = ({ slotNo, hn, date, time }: LockedSlotProps) => {
     ipcRenderer.on("dispensing-reset", () => {
       setBg("bg-[#F6F6F6");
     });
-  }, []);
+  }, [bg]);
 
   return (
     <div

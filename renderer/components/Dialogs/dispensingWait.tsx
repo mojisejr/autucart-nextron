@@ -2,6 +2,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { ipcRenderer } from "electron";
 import { useEffect, useState } from "react";
 import Loading from "../Shared/Loading";
+import Slot from "../Slot";
 // import { IO } from "../../enums/ipc-enums";
 
 interface DispensingWaitProps {
