@@ -1,5 +1,6 @@
 import { ipcRenderer } from "electron";
-import { IO } from "../../enums/ipc-enums";
+import { useDispense } from "../../hooks/useDispense";
+// import { IO } from "../../enums/ipc-enums";
 
 interface ClearOrContinueProps {
   slotNo: number;
@@ -8,27 +9,40 @@ interface ClearOrContinueProps {
 }
 
 const ClearOrContinue = ({ slotNo, hn, onClose }: ClearOrContinueProps) => {
+  const { reset, keep } = useDispense();
   function handleClear() {
     // console.log("clear");
-    ipcRenderer.invoke(IO.DispensingClear, slotNo, hn);
-    onClose();
+    // ipcRenderer.invoke(IO.DispensingClear, slotNo, hn);
+    ipcRenderer.invoke("reset", { slot: slotNo, hn }).then(() => {
+      reset(slotNo);
+      onClose();
+    });
   }
   function handleContinue() {
-    ipcRenderer.invoke(IO.DispensingContinue, slotNo, hn);
+    // ipcRenderer.invoke(IO.DispensingContinue, slotNo, hn);
+    keep();
     onClose();
   }
 
   return (
     <>
-      <div className="">
-        <div className="font-bold p-3 rounded-md shadow-md">
-          <button className="p-3 bg-gray-200" onClick={() => handleClear()}>
-            Clear
-          </button>
-          <button className="p-3 bg-gray-200" onClick={handleContinue}>
-            Continue
-          </button>
+      <div className="flex gap-2 p-5 flex-col max-w-[300px]">
+        <div className="text-[#ff0000] font-bold text-xl">
+          Does HN: {hn} still have some drug in this slot #{slotNo}?
         </div>
+
+        <button
+          className="p-3 bg-gray-200 hover:bg-[#5495f6] text-white font-bold rounded-md"
+          onClick={handleContinue}
+        >
+          Yes it does.
+        </button>
+        <button
+          className="p-3 bg-gray-200 hover:bg-[#ff0000] text-white font-bold rounded-md"
+          onClick={() => handleClear()}
+        >
+          Let's clear.
+        </button>
       </div>
     </>
   );

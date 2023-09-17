@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
 import { useEffect, useState } from "react";
 import { FaLock } from "react-icons/fa";
-import { IO } from "../../enums/ipc-enums";
+// import { IO } from "../../enums/ipc-enums";
 interface LockedSlotProps {
   slotNo: number;
   hn: string;
@@ -13,11 +13,10 @@ export const LockedSlot = ({ slotNo, hn, date, time }: LockedSlotProps) => {
   const [bg, setBg] = useState<string>("bg-[#F6F6F6");
 
   useEffect(() => {
-    ipcRenderer.on(IO.Dispensing, () => {
+    ipcRenderer.on("dispensing", () => {
       setBg("bg-[#007852");
     });
-
-    ipcRenderer.on(IO.DispensingFinished, () => {
+    ipcRenderer.on("dispensing-reset", () => {
       setBg("bg-[#F6F6F6");
     });
   }, []);

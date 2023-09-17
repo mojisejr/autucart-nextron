@@ -5,4 +5,5 @@ export interface SlotState {
   userId?: string | undefined;
   locked: boolean;
   registered: boolean;
+  opening: boolean;
 }

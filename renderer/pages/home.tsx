@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Slot from "../components/Slot";
 import Image from "next/image";
+import { useRouter } from "next/router";
+
 import { ipcRenderer } from "electron";
 import { BsBook, BsGear, BsQuestionCircle } from "react-icons/bs";
 import { ToastContainer, toast } from "react-toastify";
@@ -14,179 +16,37 @@ import DispenseSlot from "../components/Dialogs/dispenseSlot";
 import DispensingWait from "../components/Dialogs/dispensingWait";
 
 import { ISlot } from "../interfaces/slot";
-import { DB, IO } from "../enums/ipc-enums";
 import { useApp } from "../contexts/appContext";
 import ClearOrContinue from "../components/Dialogs/clearOrContinue";
-import { logEvents } from "../utils/event-log";
+// import { logEvents } from "../utils/event-log";
 import Link from "next/link";
+import { useKuStates } from "../hooks/useKuStates";
+import Loading from "../components/Shared/Loading";
+import { useDispense } from "../hooks/useDispense";
+import { useUnlock } from "../hooks/useUnlock";
+import { clearScreenDown } from "readline";
 
 function Home() {
-  const [slots, setSlotsData] = useState<ISlot[]>([]);
+  const { slots, canDispense } = useKuStates();
+  const { unlocking } = useUnlock();
+  const { dispensing } = useDispense();
   const [openAuthModal] = useState<boolean>(true);
   const [openDispenseModal, setOpenDispenseModal] = useState<boolean>(false);
-  const [disableDispensing, setDisableDispensing] = useState<boolean>(true);
-  const [isLockWait, setIsLockWait] = useState<{
-    slot?: number;
-    hn?: string;
-    wait: boolean;
-  }>({ wait: false });
+  const [closeClearOrCon, setCloseClearOrCon] = useState<boolean>(false);
 
-  const [isDispensingWait, setIsDispensingWait] = useState<{
-    slot?: number;
-    hn?: string;
-    wait: boolean;
-  }>({ wait: false });
-
-  const [isDispensingClosed, setIsDispensingClosed] = useState<{
-    slot?: number;
-    hn?: string;
-    open: boolean;
-  }>({ open: false });
-
-  const { user } = useApp();
-
-  useEffect(() => {
-    if (slots !== undefined && slots.length > 0) {
-      const found = slots.filter((s) => s.registered == true);
-      if (slots.length > 0 && found.length > 0) {
-        setDisableDispensing(false);
-      } else {
-        setDisableDispensing(true);
-      }
-    }
-
-    ipcRenderer.on(DB.GetAllSlots, (event, slots) => {
-      console.log("get slot states");
-      console.log(slots);
-      setSlotsData(slots);
-      ipcRenderer.removeAllListeners(DB.GetAllSlots);
-      // logEvents();
-    });
-  }, [slots]);
-
-  useEffect(
-    () => {
-      ipcRenderer.on(DB.SlotRegistered, handleRegister);
-
-      ipcRenderer.on(IO.Opening, handleOpening);
-
-      ipcRenderer.on(IO.Closed, handleClosed);
-
-      ipcRenderer.on(IO.Unlocked, handleUnlocked);
-
-      ipcRenderer.on(IO.Dispensed, handleDispensed);
-
-      ipcRenderer.on(IO.Dispensing, handleDispensing);
-
-      ipcRenderer.on(IO.DispensingClosed, handleDispensingClosed);
-
-      ipcRenderer.on(IO.DispensingFinished, handleDispensingFinished);
-
-      ipcRenderer.on(DB.GetAllSlots, handleGetAllSlots);
-    },
-
-    [
-      /*isLockWait.wait*/
-    ]
-  );
-
-  const handleRegister = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    console.log("REGISTERED");
-    ipcRenderer.invoke(IO.Unlock, id, hn, true);
-    setIsLockWait({ slot: id, hn, wait: true });
-    logEvents();
+  const handleCloseClearOrCon = () => {
+    setCloseClearOrCon(true);
   };
 
-  const handleOpening = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    console.log("OPENING");
-    setIsLockWait({ slot: id, hn, wait: true });
-    logEvents();
-  };
-
-  const handleClosed = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    console.log("CLOSED");
-    setIsLockWait({ slot: null, hn: null, wait: false });
-    logEvents();
-  };
-
-  const handleUnlocked = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    console.log("UNLOCKED");
-    setIsLockWait({ slot: id, hn, wait: true });
-    logEvents();
-  };
-
-  const handleDispensed = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    console.log("Dispensed");
-    setIsDispensingWait({ slot: id, hn: hn, wait: true });
-    logEvents();
-  };
-
-  const handleDispensing = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    ipcRenderer.off(IO.Dispensing, handleDispensing);
-    console.log("DISPENSING");
-    setIsDispensingWait({ slot: id, hn: hn, wait: true });
-    logEvents();
-  };
-
-  const handleDispensingClosed = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    ipcRenderer.off(IO.Dispensing, handleDispensing);
-    console.log("DISPENSING CLOSED");
-    setIsDispensingWait({ slot: id, hn: hn, wait: false });
-    setIsDispensingClosed({ slot: id, hn: hn, open: true });
-    logEvents();
-  };
-
-  const handleDispensingFinished = (
-    event: Electron.IpcRendererEvent,
-    id: number,
-    hn: string
-  ) => {
-    ipcRenderer.off(IO.Dispensing, handleDispensing);
-    console.log("DISPENSING FINISHED");
-    setIsDispensingWait({ slot: id, hn: hn, wait: false });
-    setIsDispensingClosed({ slot: id, hn: hn, open: false });
-    logEvents();
-  };
-
-  const handleGetAllSlots = (event: Electron.IpcRendererEvent, slots) => {
-    ipcRenderer.off(IO.Dispensing, handleDispensing);
-    console.log("get slot states");
-    console.log(slots);
-    setSlotsData(slots);
-    logEvents();
-  };
-
-  const handleDispense = () => {
+  const handleDispenseButton = () => {
     setOpenDispenseModal(true);
   };
+
+  useEffect(() => {
+    if (dispensing.dispensing) {
+      setCloseClearOrCon(false);
+    }
+  }, [dispensing]);
 
   return (
     <>
@@ -204,10 +64,10 @@ function Home() {
             />
 
             <div className="flex flex-col gap-2 text-[16px]">
-              {user != undefined ? (
+              {/* {user != undefined ? (
                 <div className="font-bold">User: {user.stuffId}</div>
-              ) : null}
-              <Link href="/setting">
+              ) : null} */}
+              <Link href="/#">
                 <div className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md cursor-pointer">
                   <BsGear size={20} />
                   <span>Setting</span>
@@ -232,9 +92,11 @@ function Home() {
               ) : (
                 <>
                   {slots.length <= 0 ? (
-                    <div>Loading...</div>
+                    <div className="min-h-[300px] flex justify-center items-center">
+                      <Loading />
+                    </div>
                   ) : (
-                    <ul className="flex gap-2 flex-wrap">
+                    <ul className="grid grid-cols-5 gap-2 min-h-[400px] place-content-start">
                       {slots.map((s, index) => (
                         <Slot key={index} slotData={s} />
                       ))}
@@ -245,8 +107,8 @@ function Home() {
             </>
 
             <button
-              disabled={disableDispensing}
-              onClick={() => handleDispense()}
+              disabled={!canDispense}
+              onClick={() => handleDispenseButton()}
               className="p-3 font-bold bg-[#eee] rounded-full shadow-xl hover:bg-[#5495F6] hover:text-[#fff] disabled:text-[#ddd] disabled:bg-[#eee]"
             >
               Dispense
@@ -254,7 +116,12 @@ function Home() {
           </div>
         </div>
       </div>
-      <ToastContainer limit={1} />
+      <ToastContainer
+        limit={1}
+        autoClose={1000}
+        position="top-center"
+        hideProgressBar
+      />
       {/* {!user ? (
         <>
           <Modal isOpen={openAuthModal} onClose={() => {}}>
@@ -268,20 +135,25 @@ function Home() {
       >
         <DispenseSlot onClose={() => setOpenDispenseModal(false)} />
       </Modal>
-      <Modal isOpen={isLockWait.wait} onClose={() => {}}>
-        <LockWait slotNo={isLockWait.slot} hn={isLockWait.hn} />
+      <Modal isOpen={unlocking.unlocking} onClose={() => {}}>
+        {/* <Modal isOpen={true} onClose={() => {}}> */}
+        <LockWait slotNo={unlocking.slot} hn={unlocking.hn} />
       </Modal>
-      <Modal isOpen={isDispensingWait.wait} onClose={() => {}}>
-        <DispensingWait
-          slotNo={isDispensingWait.slot}
-          hn={isDispensingWait.hn}
-        />
+      <Modal isOpen={dispensing.dispensing} onClose={() => {}}>
+        {dispensing ? (
+          <DispensingWait slotNo={dispensing.slot} hn={dispensing.hn} />
+        ) : null}
       </Modal>
-      <Modal isOpen={isDispensingClosed.open} onClose={() => {}}>
+      <Modal
+        isOpen={
+          closeClearOrCon ? false : !dispensing.dispensing && dispensing.reset
+        }
+        onClose={() => {}}
+      >
         <ClearOrContinue
-          slotNo={isDispensingClosed.slot}
-          hn={isDispensingClosed.hn}
-          onClose={() => {}}
+          slotNo={dispensing.slot}
+          hn={dispensing.hn}
+          onClose={handleCloseClearOrCon}
         />
       </Modal>
     </>

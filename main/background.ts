@@ -1,21 +1,24 @@
-import { BrowserWindow, app } from "electron";
+import { BrowserWindow, app, ipcMain } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
-import { SerialPort } from "serialport";
-import { onRegisterSlot } from "./ipc/onRegisterSlot";
-import { onGetSlotsState } from "./ipc/onGetSlotsState";
-import { getPortList, initSerialPort, portUnlockSlot } from "./commands";
-import { onWaitForLockBack } from "./ipc/onWaitForLockBack";
-import { onUnlock } from "./ipc/onUnlock";
-import { onLogin } from "./ipc/onLogin";
-import { onDispense } from "./ipc/onDispense";
-import { onWaitForDispensingLockBack } from "./ipc/onWaitForDispeningLocked";
-import { onDispeningClear } from "./ipc/onDispensingClear";
-import { onDispeningContinue } from "./ipc/onDispensingContinue";
-import { onGetPortList } from "./ipc/onGetPortList";
+import { url } from "./mqtt";
+import { connect } from "mqtt";
+import { pubInit } from "./mqtt/pub/init";
+import { handleKuStates } from "./mqtt/message/kuStates";
+import { subKuState } from "./mqtt/sub/kuStates";
+import { pubUnlock } from "./mqtt/pub/unlock";
+import { subUnlocking } from "./mqtt/sub/unlocking";
+import { subDispensing } from "./mqtt/sub/dispensing";
+import { handleDispensing } from "./mqtt/message/dispensing";
+import { handleUnlocking } from "./mqtt/message/unlocking";
+import { pubDispense } from "./mqtt/pub/dispense";
+import { pubDispensingReset } from "./mqtt/pub/dispensingReset";
+import { subDispensingReset } from "./mqtt/sub/dispensingReset";
+import { pubInitOnIpc } from "./mqtt/pub/initOnIpc";
+import { handleDispensingReset } from "./mqtt/message/dispensingReset";
+import { handleResetFinished } from "./mqtt/message/resetFinished";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
-let port: SerialPort;
 let mainWindow: BrowserWindow;
 let timer;
 
@@ -34,6 +37,50 @@ if (isProd) {
     resizable: false,
   });
 
+  const mqtt = connect(url);
+
+  //Publisher
+  pubInit(mqtt);
+  pubInitOnIpc(mqtt);
+  pubUnlock(mqtt);
+  pubDispense(mqtt);
+  pubDispensingReset(mqtt);
+
+  //Subscriber
+  subKuState(mqtt);
+  subUnlocking(mqtt);
+  subDispensing(mqtt);
+  subDispensingReset(mqtt);
+
+  //Event Listener
+  mqtt.on("connect", () => {
+    mqtt.on("message", (topic, payload) => {
+      const parsedPayload = JSON.parse(payload.toString());
+      switch (topic) {
+        case "ku_states": {
+          handleKuStates(mainWindow, parsedPayload);
+          break;
+        }
+        case "dispensing": {
+          handleDispensing(mainWindow, parsedPayload);
+          break;
+        }
+        case "unlocking": {
+          handleUnlocking(mainWindow, parsedPayload);
+          break;
+        }
+        case "dispensing-reset": {
+          handleDispensingReset(mainWindow, parsedPayload);
+          break;
+        }
+        case "reset-finished": {
+          handleResetFinished(mainWindow, parsedPayload);
+          break;
+        }
+      }
+    });
+  });
+
   if (isProd) {
     await mainWindow.loadURL("app://./home.html");
   } else {
@@ -43,35 +90,10 @@ if (isProd) {
   }
 
   //@DEV: Initialize and open serial port
-  port = initSerialPort();
-
-  onLogin();
-  await onGetPortList(mainWindow);
-  //@Dev: get slot states
-  await onGetSlotsState(mainWindow);
-  //@Dev: register hn to slot
-  await onRegisterSlot(mainWindow);
-  //@Dev: unlock slot
-  await onUnlock(port, mainWindow);
-  //@Dev: waiting for lockback
-  await onWaitForLockBack(port, mainWindow);
-  //@Dev: despensing start
-  await onDispense(port, mainWindow);
-  //@Dev: waiting for dispensing lockback
-  await onWaitForDispensingLockBack(port, mainWindow);
-  //@Dev: clear
-  await onDispeningClear(mainWindow);
-  //@Dev: continue
-  await onDispeningContinue(mainWindow);
 })();
 
 app.on("window-all-closed", () => {
-  port.close();
   clearInterval(timer);
-
-  if (port.closed) {
-    console.log("port closed.");
-  }
 
   app.quit();
 });

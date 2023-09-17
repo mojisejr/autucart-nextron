@@ -1,7 +1,8 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { MdQrCodeScanner } from "react-icons/md";
 import { ipcRenderer } from "electron";
-import { DB } from "../../enums/ipc-enums";
+import { useUnlock } from "../../hooks/useUnlock";
+// import { DB } from "../../enums/ipc-enums";
 
 type Inputs = {
   hn: string;
@@ -13,6 +14,7 @@ interface InputSlotProps {
 }
 
 const InputSlot = ({ slotNo, onClose }: InputSlotProps) => {
+  const { unlock } = useUnlock();
   const {
     register,
     handleSubmit,
@@ -21,7 +23,8 @@ const InputSlot = ({ slotNo, onClose }: InputSlotProps) => {
   } = useForm();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    ipcRenderer.invoke(DB.RegisterSlot, slotNo, data.hn, true);
+    // ipcRenderer.invoke(DB.RegisterSlot, slotNo, data.hn, true);
+    unlock(slotNo, data.hn);
     onClose();
   };
 

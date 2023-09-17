@@ -3,7 +3,6 @@ import { MdQrCodeScanner } from "react-icons/md";
 import { ipcRenderer } from "electron";
 import { toast } from "react-toastify";
 import { useApp } from "../../contexts/appContext";
-import { AUTHENTICATION } from "../../enums/ipc-enums";
 
 type Inputs = {
   stuffId: string;
@@ -20,7 +19,8 @@ const Auth = () => {
   } = useForm();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const user = await ipcRenderer.invoke(AUTHENTICATION.Login, data.stuffId);
+    // const user = await ipcRenderer.invoke(AUTHENTICATION.Login, data.stuffId);
+    const user = null;
     if (user != null || user != undefined) {
       toast(`loggedin! ${user.stuffId}`);
       setUser(user);
