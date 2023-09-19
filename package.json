@@ -14,11 +14,17 @@
   },
   "build": {
     "linux": {
+      "synopsis": "SMC",
+      "description": "SMC",
+      "category": "SMC",
       "target": [
-        "AppImage",
-        "deb"
+        {
+          "target": "AppImage",
+          "arch": ["arm64", "armv7l"]
+        }
       ]
-    }
+    },
+    "publish": null
   },
   "dependencies": {
     "@headlessui/react": "^1.7.15",

@@ -29,11 +29,13 @@ export function AppProvider({ children }: appProviderProps) {
 
   useEffect(() => {
     if (user !== null || user !== undefined) {
+      console.log(user);
       setLogged(true);
     }
   }, [user]);
 
   const setUser = (user: { stuffId: string; role: string }) => {
+    console.log('user', user);
     setActiveUser(user);
   };
 

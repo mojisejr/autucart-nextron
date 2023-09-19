@@ -25,7 +25,7 @@ const Auth = () => {
     // if (user != null || user != undefined) {
     if (data.stuffId == mockStuffId) {
       toast(`loggedin! ${data.stuffId}`, { toastId: 99, type: "success" });
-      setUser(user);
+      setUser({stuffId: "1234", role: "ADMIN"});
     } else {
       toast(`Invalid user`, { toastId: 99, type: "error" });
     }
