@@ -20,6 +20,7 @@ import Loading from "../components/Shared/Loading";
 import { useDispense } from "../hooks/useDispense";
 import { useUnlock } from "../hooks/useUnlock";
 import { useApp } from "../contexts/appContext";
+import { BsUnlockFill } from 'react-icons/bs'
 
 function Home() {
   const { slots, canDispense } = useKuStates();
@@ -47,7 +48,7 @@ function Home() {
   return (
     <>
       <Head>
-        <title>Smart Drug Cart V1.0</title>
+        <title>Smart Medication Cart V1.0</title>
       </Head>
       <div className=" grid grid-cols-12 text-2xl text-center h-screen">
         <div className="col-span-2">
@@ -78,10 +79,11 @@ function Home() {
                 <span>About</span>
               </button>
             </div>
+         
           </div>
         </div>
         <div className="col-span-10 bg-[#F3F3F3] rounded-l-[50px]">
-          <div className="w-full h-full p-[2rem] flex flex-col gap-[1.2rem]">
+          <div className="w-full h-full p-[2rem] flex flex-col gap-[1.2rem] overflow-y-auto">
             <>
               {slots === undefined ? (
                 <div>Error: undefined</div>
@@ -92,7 +94,7 @@ function Home() {
                       <Loading />
                     </div>
                   ) : (
-                    <ul className="grid grid-cols-5 gap-2 min-h-[400px] place-content-start">
+                    <ul className="grid grid-cols-5 gap-2 min-h-[70vh] place-content-start">
                       {slots.map((s, index) => (
                         <Slot key={index} slotData={s} />
                       ))}
@@ -101,14 +103,16 @@ function Home() {
                 </>
               )}
             </>
-
             <button
               disabled={!canDispense}
               onClick={() => handleDispenseButton()}
-              className="p-3 font-bold bg-[#eee] rounded-full shadow-xl hover:bg-[#5495F6] hover:text-[#fff] disabled:text-[#ddd] disabled:bg-[#eee]"
+              className=" flex items-center gap-2 absolute bottom-10 right-10 text-[36px]  px-5 py-3 font-bold bg-[#eee] rounded-xl shadow-xl hover:bg-[#5495F6] hover:text-[#fff] disabled:text-[#ddd] disabled:bg-[#eee]"
             >
+              <BsUnlockFill  />
               Dispense
             </button>
+
+           
           </div>
         </div>
       </div>
@@ -123,7 +127,7 @@ function Home() {
           <Modal
             isOpen={openAuthModal}
             onClose={() => {
-              logged ? setOpenAuthModal(false) : null;
+              user ? setOpenAuthModal(false) : null;
             }}
           >
             <Auth />

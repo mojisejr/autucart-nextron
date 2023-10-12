@@ -1,7 +1,10 @@
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import { MdQrCodeScanner } from "react-icons/md";
 import { ipcRenderer } from "electron";
 import { useUnlock } from "../../hooks/useUnlock";
+import { useKuStates } from "../../hooks/useKuStates";
+import { toast } from "react-toastify";
 // import { DB } from "../../enums/ipc-enums";
 
 type Inputs = {
@@ -14,6 +17,7 @@ interface InputSlotProps {
 }
 
 const InputSlot = ({ slotNo, onClose }: InputSlotProps) => {
+  const { slots, get } = useKuStates();
   const { unlock } = useUnlock();
   const {
     register,
@@ -22,10 +26,19 @@ const InputSlot = ({ slotNo, onClose }: InputSlotProps) => {
     formState: { errors },
   } = useForm();
 
+  const checkDuplicate = (hn: string) => {
+    const found = slots.find(slot => slot.hn == hn);
+    return found == undefined && slots.length > 0 ? true : false;
+  };
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     // ipcRenderer.invoke(DB.RegisterSlot, slotNo, data.hn, true);
-    unlock(slotNo, data.hn);
-    onClose();
+    if(!checkDuplicate(data.hn)) {
+      toast.error("Cannot Input Duplicate HN");
+    } else {
+      unlock(slotNo, data.hn);
+      onClose();
+    }
   };
 
   return (

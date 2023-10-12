@@ -9,5 +9,5 @@ interface State {
   occupied: boolean;
 }
 export const handleKuStates = (win: BrowserWindow, payload: State[]) => {
-  win.webContents.send("ku_states", payload);
+    win.webContents.send("ku_states", payload);
 };

@@ -32,8 +32,10 @@ export function AppProvider({ children }: appProviderProps) {
       console.log(user);
       setLogged(true);
     }
+
   }, [user]);
 
+ 
   const setUser = (user: { stuffId: string; role: string }) => {
     console.log('user', user);
     setActiveUser(user);
@@ -42,6 +44,7 @@ export function AppProvider({ children }: appProviderProps) {
   const value = {
     user,
     logged,
+
     setUser,
   };
 

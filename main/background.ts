@@ -16,11 +16,9 @@ import { pubDispensingReset } from "./mqtt/pub/dispensingReset";
 import { subDispensingReset } from "./mqtt/sub/dispensingReset";
 import { pubInitOnIpc } from "./mqtt/pub/initOnIpc";
 import { handleDispensingReset } from "./mqtt/message/dispensingReset";
-import { handleResetFinished } from "./mqtt/message/resetFinished";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 let mainWindow: BrowserWindow;
-let timer;
 
 if (isProd) {
   serve({ directory: "app" });
@@ -31,16 +29,17 @@ if (isProd) {
 (async () => {
   await app.whenReady();
 
+
   mainWindow = createWindow("main", {
     width: 1024,
     height: 600,
-    resizable: false,
+    resizable: true,
   });
 
   const mqtt = connect(url);
 
   //Publisher
-  pubInit(mqtt);
+  // pubInit(mqtt);
   pubInitOnIpc(mqtt);
   pubUnlock(mqtt);
   pubDispense(mqtt);
@@ -73,13 +72,10 @@ if (isProd) {
           handleDispensingReset(mainWindow, parsedPayload);
           break;
         }
-        case "reset-finished": {
-          handleResetFinished(mainWindow, parsedPayload);
-          break;
-        }
       }
     });
   });
+
 
   if (isProd) {
     await mainWindow.loadURL("app://./home.html");
@@ -88,12 +84,8 @@ if (isProd) {
     await mainWindow.loadURL(`http://localhost:${port}/home`);
     mainWindow.webContents.openDevTools();
   }
-
-  //@DEV: Initialize and open serial port
 })();
 
 app.on("window-all-closed", () => {
-  clearInterval(timer);
-
   app.quit();
 });

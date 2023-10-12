@@ -25,10 +25,8 @@ export const useKuStates = () => {
     if (payload != undefined) {
       setSlots(payload);
       isDispensible(payload);
-    } else {
-      setSlots([]);
-      isDispensible([]);
-    }
+    } 
+ 
   };
 
   const isDispensible = (payload: IPayload[]) => {
@@ -37,6 +35,7 @@ export const useKuStates = () => {
   };
 
   useEffect(() => {
+    get();
     ipcRenderer.on("ku_states", (event, payload) => {
       handleGetKuStates(event, payload);
     });
