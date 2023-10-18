@@ -16,6 +16,10 @@ import { pubDispensingReset } from "./mqtt/pub/dispensingReset";
 import { subDispensingReset } from "./mqtt/sub/dispensingReset";
 import { pubInitOnIpc } from "./mqtt/pub/initOnIpc";
 import { handleDispensingReset } from "./mqtt/message/dispensingReset";
+import { pubResetSlot } from "./mqtt/pub/resetSlot";
+import { subGetLogs } from "./mqtt/sub/getLogs";
+import { handleRetriveLogs } from "./mqtt/message/retriveLogs";
+import { pubGetLogs } from "./mqtt/pub/getLogs";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 let mainWindow: BrowserWindow;
@@ -31,25 +35,28 @@ if (isProd) {
 
 
   mainWindow = createWindow("main", {
-    width: 1024,
-    height: 600,
-    resizable: true,
+    fullscreen: false,
+    closable: false,
+    autoHideMenuBar: true,
   });
 
   const mqtt = connect(url);
 
   //Publisher
-  // pubInit(mqtt);
+  pubInit(mqtt);
   pubInitOnIpc(mqtt);
   pubUnlock(mqtt);
   pubDispense(mqtt);
   pubDispensingReset(mqtt);
+  pubResetSlot(mqtt);
+  pubGetLogs(mqtt);
 
   //Subscriber
   subKuState(mqtt);
   subUnlocking(mqtt);
   subDispensing(mqtt);
   subDispensingReset(mqtt);
+  subGetLogs(mqtt);
 
   //Event Listener
   mqtt.on("connect", () => {
@@ -71,6 +78,9 @@ if (isProd) {
         case "dispensing-reset": {
           handleDispensingReset(mainWindow, parsedPayload);
           break;
+        }
+        case "retrive_logs": {
+          handleRetriveLogs(mainWindow, parsedPayload);
         }
       }
     });

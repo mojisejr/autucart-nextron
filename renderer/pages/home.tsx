@@ -3,7 +3,7 @@ import Head from "next/head";
 import Slot from "../components/Slot";
 import Image from "next/image";
 
-import { BsBook, BsGear, BsQuestionCircle } from "react-icons/bs";
+import { BsBook, BsGear, BsHouseDoor, BsQuestionCircle } from "react-icons/bs";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,6 +21,8 @@ import { useDispense } from "../hooks/useDispense";
 import { useUnlock } from "../hooks/useUnlock";
 import { useApp } from "../contexts/appContext";
 import { BsUnlockFill } from 'react-icons/bs'
+import Indicator from "../components/Indicators/battery";
+import Navbar from "../components/Shared/Navbar";
 
 function Home() {
   const { slots, canDispense } = useKuStates();
@@ -51,35 +53,20 @@ function Home() {
         <title>Smart Medication Cart V1.0</title>
       </Head>
       <div className=" grid grid-cols-12 text-2xl text-center h-screen">
-        <div className="col-span-2">
-          <div className="w-full p-[2rem] flex flex-col gap-3 justify-center items-center">
+        <div className="col-span-2 flex flex-col justify-between">
+          <div className="w-full px-3 py-10 flex flex-col gap-3 justify-center items-center">
             <Image
               src="/images/deprecision.png"
-              width={85}
+              width={86}
               height={85}
               alt="logo"
             />
-
-            <div className="flex flex-col gap-2 text-[16px]">
-              {/* {user != undefined ? (
-                <div className="font-bold">User: {user.stuffId}</div>
-              ) : null} */}
-              <Link href="/#">
-                <div className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md cursor-pointer">
-                  <BsGear size={20} />
-                  <span>Setting</span>
-                </div>
-              </Link>
-              <button className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md">
-                <BsBook size={20} />
-                <span>Documents</span>
-              </button>
-              <button className="flex justify-start items-center gap-2 p-2 hover:bg-gray-200 hover:rounded-md">
-                <BsQuestionCircle size={20} />
-                <span>About</span>
-              </button>
-            </div>
-         
+            <Navbar active={1}/>
+              <div className="w-full px-4 flex  flex-col gap-2 justify-start items-center">
+                <Indicator title="batt." value={97} unit="%"/>
+                <Indicator title="temp." value={24} unit="*C"/>
+                <Indicator title="humid." value={66} unit="%"/>
+              </div>
           </div>
         </div>
         <div className="col-span-10 bg-[#F3F3F3] rounded-l-[50px]">
@@ -95,7 +82,7 @@ function Home() {
                     </div>
                   ) : (
                     <ul className="grid grid-cols-5 gap-2 min-h-[70vh] place-content-start">
-                      {slots.map((s, index) => (
+                      {slots.sort((a,b) => a.slotId - b.slotId).map((s, index) => (
                         <Slot key={index} slotData={s} />
                       ))}
                     </ul>

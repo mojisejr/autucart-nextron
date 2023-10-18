@@ -3,6 +3,7 @@ import LockedSlot from "./locked";
 import EmptySlot from "./empty";
 import Modal from "../Modals";
 import InputSlot from "../Dialogs/inputSlot";
+import ResetSlotOrNot from "../Dialogs/ResetSlotOrNot";
 
 interface SlotProps {
   slotData: {
@@ -17,6 +18,7 @@ interface SlotProps {
 const Slot = ({ slotData }: SlotProps) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
+
   function handleSlot() {
     if (!slotData.opening && !slotData.occupied)
       if (openModal) {
@@ -27,7 +29,7 @@ const Slot = ({ slotData }: SlotProps) => {
   }
 
   return (
-    <button onClick={handleSlot}>
+     <button onClick={handleSlot}>
       {slotData.occupied ? (
         <LockedSlot
           slotNo={slotData.slotId}
@@ -41,7 +43,9 @@ const Slot = ({ slotData }: SlotProps) => {
       <Modal isOpen={openModal} onClose={handleSlot}>
         <InputSlot slotNo={slotData.slotId} onClose={handleSlot} />
       </Modal>
+    
     </button>
+   
   );
 };
 
